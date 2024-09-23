@@ -4,6 +4,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"html/template"
+	"log"
+	"net/http"
+	"net/url"
+	"os"
+	"time"
+
 	"github.com/coreos/go-oidc"
 	"github.com/go-openapi/strfmt"
 	"github.com/google/uuid"
@@ -11,27 +18,15 @@ import (
 	kratos "github.com/ory/kratos-client-go"
 	"golang.org/x/oauth2"
 	"gopkg.in/square/go-jose.v2/jwt"
-	"html/template"
-	"log"
-	"net/http"
-	"net/url"
-	"time"
 
 	hydraCli "github.com/ory/hydra/sdk/go/hydra/client"
 )
 
 // ENV's
-const (
-	PORT     = ":8080"
-	BASE_URL = "http://127.0.0.1" + PORT
-
-	CLIENT_ID     = "226295e4-4198-42d3-849e-819459eb4179"
-	CLIENT_SECRET = "zH~l3ePcCZH.Z_yzgXvgPrg_ND"
-
-	HYDRA_PUBLIC_URL = "http://127.0.0.1:4444"
-	HYDRA_ADMIN_URL  = "http://127.0.0.1:4445"
-
-	KRATOS_PUBLIC_URL = "http://127.0.0.1:4433"
+var 
+(
+	PORT, BASE_URL, CLIENT_ID, CLIENT_SECRET, 
+	HYDRA_PUBLIC_URL, HYDRA_ADMIN_URL, KRATOS_PUBLIC_URL string
 )
 
 // Paths
@@ -44,6 +39,45 @@ const (
 )
 
 func main() {
+	PORT = os.Getenv("PORT")
+	if PORT == "" {
+		fmt.Println("PORT is not set")
+		os.Exit(1)
+	}
+
+	BASE_URL = os.Getenv("BASE_URL")
+	if BASE_URL == "" {
+		fmt.Println("BASE_URL is not set")
+		os.Exit(1)
+	}
+
+	CLIENT_ID = os.Getenv("CLIENT_ID")
+	if CLIENT_ID == "" {
+		fmt.Println("CLIENT_ID is not set")
+		os.Exit(1)
+	}
+
+	CLIENT_SECRET = os.Getenv("CLIENT_SECRET")
+	if CLIENT_SECRET == "" {
+		fmt.Println("CLIENT_SECRET is not set")
+		os.Exit(1)
+	}
+
+	HYDRA_PUBLIC_URL = os.Getenv("HYDRA_PUBLIC_URL")
+	if HYDRA_PUBLIC_URL == "" {
+		HYDRA_PUBLIC_URL = "http://127.0.0.1:4444"
+	}
+
+	HYDRA_ADMIN_URL = os.Getenv("HYDRA_ADMIN_URL")
+	if HYDRA_ADMIN_URL == "" {
+		HYDRA_ADMIN_URL = "http://127.0.0.1:4445"
+	}
+
+	KRATOS_PUBLIC_URL = os.Getenv("KRATOS_PUBLIC_URL")
+	if KRATOS_PUBLIC_URL == "" {
+		KRATOS_PUBLIC_URL = "http://http://127.0.0.1:4433"
+	}
+
 	// public page
 	http.HandleFunc("/", WelcomeHandler)
 	http.HandleFunc("/dashboard", DashboardHandler)
@@ -57,7 +91,7 @@ func main() {
 	http.HandleFunc(logoutMiddlewarePath, LogOutMiddlewareHandler)
 
 	fmt.Println("Server is running on: ", BASE_URL)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":"+PORT, nil))
 }
 
 func WelcomeHandler(w http.ResponseWriter, r *http.Request) {
