@@ -1,127 +1,74 @@
 # Ory Kratos Authentication and Authorization
 
-## 1. Introduction
+## Introduction
 
-## 2. Prerequisites
+This project is a containerized setup for running ORY Kratos and ORY Hydra locally for development and testing purposes.
+
+## Prerequisites
 
 Ensure you have the following tools installed before proceeding:
 
--   **Docker**: To run the services in containers.
--   **Docker Compose**: To manage multi-container Docker applications.
+- **Docker**: To run the services in containers.
+- **Docker Compose**: To manage multi-container Docker applications.
+- **PostgreSQL**: A Cloud/Local PostgreSQL Instance Contains two seperate databases for Hydra/Kratos.
 
-You also need to configure an OAuth2 provider, like Google, if you wish to use OAuth login.
+```text
+Note: You also need to configure an OAuth2 provider, like Google, if you wish to use OAuth login.
+```
 
-## 3. Configuration
+## Project Setup
 
-There are four main files to configure:
-
--   **`docker-compose-kratos.yml`**: Defines the containers, including Ory Kratos, UI, MailSlurper, and migrations.
--   **`kratos.yml`**: The Kratos configuration file that defines the services, identity schemas, and email settings.
--   **`docker-compose-hydra.yml`**:
--   **`hydra.yml`**:
-
-### docker-compose-kratos.yml Configuration
-
-The `docker-compose-kratos.yml` file includes:
-
--   **Ory Kratos** for identity management
--   **Custom Kratos UI** for user interface (sign-up, login, logout)
--   **MailSlurper** for email delivery during verification and recovery
--   **Kratos Migration** for database migrations
-
-Important Environment Variables:
-
--   **DSN**: The connection string for PostgreSQL (`postgres://admin:admin@11.22.33.55:1234/kratos`)
--   **PORTS**: Ensure the necessary ports are open for Kratos, MailSlurper, and the UI.
-
-### docker-compose-hydra.yml Configuration
-
-**hydra service**: Runs the Ory Hydra service on ports 4444 (public) and 4445 (admin).
-**hydra-migrate service**: Handles database migrations using SQLite.
-**Volumes and Networks**: The hydra-sqlite volume stores SQLite database data, while the intranet network allows communication between the services.
-
-### Kratos Configuration (`kratos.yml`)
-
--   **Self-Service Flows**: Configures flows like login, registration, password recovery, and verification.
--   **OAuth2**: Integrate with Google OAuth using the `oidc` provider. Replace the `client_id` and `client_secret` with your Google credentials.
--   **SMTP Configuration**: Ensure the SMTP connection is correct for MailSlurper or your chosen email provider.
-
-### Hydra Configuration (`hydra.yml`)
-
-The hydra.yml file configures Ory Hydra's services:
-
--   **CORS settings**: Enables CORS for both public and admin endpoints, allowing local requests from localhost and 127.0.0.1.
--   **OAuth URLs**: Defines the URLs for login, logout, and consent, connected with Ory Kratos.
--   **OIDC settings**: Sets up OIDC (OpenID Connect) with support for pairwise and public subject identifiers.
--   **Secrets**: Defines the system secret and pairwise salt (ensure you replace the default secret with a strong, unique value)
-
-Important Configuration Changes
-
--   Change the system secret in the hydra.yml file (CHANGE_ME_TO_REAL_SECRET) to a strong, unique secret for production use.
--   Customize the urls section to match your application's endpoints.
-
-## 4. Installation
-
-### Step 1: Clone the Repository
+### Step 1 - Clone this repository to your local machine
 
 ```bash
-git clone <repository-url>
-cd <repository-directory>
+git clone https://github.com/jatin-dev-appointy/pteam-poc.git
+
+cd pteam-poc
 ```
 
-### Step 2: Configure the Project
+### Step 2 - Configure Kratos/Hydra
 
-Update the following in the `kratos.yml` file:
+```text
+Config Steps ...
+```
 
--   Replace `client_id` and `client_secret` in the `oidc` section with your Google OAuth credentials.
--   Update the `DSN` environment variable in `docker-compose-kratos.yml` to match your PostgreSQL configuration.
--   Ensure the smtp.connection_uri is correctly configured in kratos.yml for MailSlurper or your SMTP provider.
+### Step 3 - Generate Custom Docker Images
 
-### Step 3: Build and Run the Services
+`Note: Navigate to the Root Directory`
 
-Run the following command to start the kratos:
+- Custom Auth Project - A Custom Backend Server which communicates to ORY Hydra/Kratos
 
 ```bash
-docker-compose -f docker-compose-kratos.yml up -d
+docker build custom-auth-interface -t custom-auth-interface:1.0
 ```
 
-This will:
-
--   Set up the database migrations.
--   Launch Ory Kratos for identity management.
--   Start the custom Kratos UI.
--   Start MailSlurper for email handling.
-
-Run the following command to start the hydra:
+- Custom Kratos UI - A Custom user interface for Kratos, handling registration, login, and logout screens.
 
 ```bash
-docker-compose -f docker-compose-hydra.yml up -d
+docker build custom-kratos-ui -t custom-kratos-ui:1.0
 ```
 
-This command will:
+### Step 4 - Run All the Docker Images via Docker Compose
 
--   Launch the Hydra public and admin services.
--   Perform the necessary database migrations.
-
-## 5. Usage
-
-### Accessing the UI
-
-After the services start, you can access the Kratos UI at:
-
-```
-http://127.0.0.1:4455
+```bash
+docker-compose -f docker-compose up -d
 ```
 
-### Mail Server
+This will
 
-Receive an email via MailSlurper at:
+- Set up the database migrations of Hydra/Kratos Schema and Tables
+- Launch Ory Kratos/Hydra Admin/Public Services for Authentication.
+- Start MailSlurper Test Service for Email Handling. (View Sent Emails on <http://127.0.0.1:4436>)
+- Start the Custom Kratos UI.
+- Start the Cuustom Auth Project i.e Custom Backend Server which communicates to ORY Hydra/Kratos
 
+#### Step 5 - Access the Service
+
+```bash
+EntryPoint - http://127.0.0.1:8080
 ```
-http://127.0.0.1:4436
-```
 
-## Ports and Their Usage
+##### Ports and Their Usage
 
 | Service                     | Port | Usage                                                                  |
 | --------------------------- | ---- | ---------------------------------------------------------------------- |
@@ -132,3 +79,42 @@ http://127.0.0.1:4436
 | **MailSlurper (SMTP)**      | 4437 | SMTP server to simulate sending emails                                 |
 | **Hydra Public API**        | 4444 | Public endpoint for OAuth 2.0 authorization requests.                  |
 | **Hydra Admin API**         | 4445 | Admin endpoint for managing clients and configurations.                |
+
+## Getting Started
+
+### Step 1 - Create Hydra Client
+
+```text
+NOTE: This steps will fetch CLIENT_ID, CLIENT_SECRET that will used in Custom-Auth-PRoject Configurations 
+```
+
+```bash
+curl --location 'http://127.0.0.1:4445/admin/clients' \
+--header 'Content-Type: application/json' \
+--header 'Accept: application/json' \
+--data '{
+  "client_name": "p-team",
+  "redirect_uris": [
+    "http://127.0.0.1:8080/callback",
+    "http://127.0.0.1:8080/logout-callback",
+    "http://127.0.0.1:8080/logout-middleware"
+  ],
+  "grant_types": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "response_types": [
+    "code",
+    "id_token"
+  ],
+  "scope": "openid offline profile",
+  "post_logout_redirect_uris": [
+    "http://127.0.0.1:8080/logout-callback"
+  ]
+}'
+```
+
+## References
+
+- <https://www.ory.sh/docs/kratos/install>
+- <https://www.ory.sh/docs/hydra/self-hosted/install>
