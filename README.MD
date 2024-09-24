@@ -26,11 +26,74 @@ git clone https://github.com/jatin-dev-appointy/pteam-poc.git
 cd pteam-poc
 ```
 
-### Step 2 - Configure Kratos/Hydra
+### Step 2 - Configurations for Kratos/Hydra
 
-```text
-Config Steps ...
-```
+There are four main files to configure:
+
+- **`docker-compose.yml`**: Defines the containers, including Ory hydra & Kratos, UI, Backend, MailSlurper and migrations.
+- **`kratos.yml`**: The Kratos configuration file that defines the services, identity schemas, and email settings.
+- **`hydra.yml`**: Thw Hydra configuration file to handle OAuth 2.0 and OpenID Connect server.
+- **`identity-schema.json`**: This file defines the identity schema for users in Kratos, including traits like email and password.
+
+#### (Docker Compose Configurations) - `docker-compose.yml`
+
+- **custom-auth-interface**: A custom backend server communicate with ory kratos and hydra.
+
+  - Important Environment Variables:
+    - `CLIENT_ID`, `CLIENT_SECRET`: Used to configure OAuth2 client credentials.
+    - `HYDRA_PUBLIC_URL`, `HYDRA_ADMIN_URL`: URLs for connecting to Hydra's public and admin interfaces.
+    - `KRATOS_PUBLIC_URL`: URL to Kratos' public interface.
+
+- **hydra**:
+
+  - **hydra service**: Runs the Ory Hydra service on ports 4444 (public) and 4445 (admin).
+  - **hydra-migrate service**: Handles database migrations using SQLite.
+  - **Volumes and Networks**: The hydra-sqlite volume stores SQLite database data, while the intranet network allows communication between the services.
+  - Important Environment Variables:
+    - **DSN**: The connection string for PostgreSQL (`postgres://admin:admin@11.22.33.55:1234/hydra`)
+
+- **kratos**:
+
+  - **Ory Kratos** to handle user identities and self-service flows like registration and login.
+  - **Kratos Migration** for database migrations
+  - Important Environment Variables:
+    - **DSN**: The connection string for PostgreSQL (`postgres://admin:admin@11.22.33.55:1234/kratos`)
+
+- **kratos-custom-ui**:
+
+  - Custom user interface for Kratos, handling registration, login, and logout screens.
+  - Important Environment Variables: - KRATOS_PUBLIC_URL, KRATOS_BROWSER_URL, HYDRA_ADMIN_URL
+
+- **mailslurper**:
+  - A mail server for testing, used by Kratos to send verification and recovery emails.
+
+#### (Kratos Configuration) - `kratos.yml`
+
+- **Self-Service Flows**: Configures flows like login, registration, password recovery, and verification.
+- **OAuth2**: Integrate with Google OAuth using the `oidc` provider. Replace the `client_id` and `client_secret` with your Google credentials.
+- **SMTP Configuration**: Ensure the SMTP connection is correct for MailSlurper or your chosen email provider.
+
+#### (Hydra Configuration) - `hydra.yml`
+
+##### The hydra.yml file configures Ory Hydra's services
+
+- **CORS settings**: Enables CORS for both public and admin endpoints, allowing local requests from localhost and 127.0.0.1.
+- **OAuth URLs**: Defines the URLs for login, logout, and consent, connected with Ory Kratos.
+- **OIDC settings**: Sets up OIDC (OpenID Connect) with support for pairwise and public subject identifiers.
+- **Secrets**: Defines the system secret and pairwise salt (ensure you replace the default secret with a strong, unique value)
+
+##### Important Configuration Changes
+
+- Change the system secret in the `hydra.yml` file (CHANGE_ME_TO_REAL_SECRET) to a strong, unique secret for production use.
+- Customize the urls section to match your application's endpoints.
+
+#### (Identity Schema Configuration) - `identity.schema.json`
+
+##### This file defines the identity schema for users in Kratos, including traits like email and password
+
+- Defines required and optional user traits (email, first name, last name, etc.)
+- Configure the primary identifier for password and code-based authentication
+- Sets up verification and recovery flows
 
 ### Step 3 - Generate Custom Docker Images
 
