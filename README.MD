@@ -35,7 +35,7 @@ There are four main files to configure:
 - **`hydra.yml`**: Thw Hydra configuration file to handle OAuth 2.0 and OpenID Connect server.
 - **`identity-schema.json`**: This file defines the identity schema for users in Kratos, including traits like email and password.
 
-#### (Docker Compose Configurations) - `docker-compose.yml`
+#### 1. (Docker Compose Configurations) - `docker-compose.yml`
 
 - **custom-auth-interface**: A custom backend server communicate with ory kratos and hydra.
 
@@ -67,13 +67,13 @@ There are four main files to configure:
 - **mailslurper**:
   - A mail server for testing, used by Kratos to send verification and recovery emails.
 
-#### (Kratos Configuration) - `kratos.yml`
+#### 2. (Kratos Configuration) - `kratos.yml`
 
 - **Self-Service Flows**: Configures flows like login, registration, password recovery, and verification.
 - **OAuth2**: Integrate with Google OAuth using the `oidc` provider. Replace the `client_id` and `client_secret` with your Google credentials.
 - **SMTP Configuration**: Ensure the SMTP connection is correct for MailSlurper or your chosen email provider.
 
-#### (Hydra Configuration) - `hydra.yml`
+#### 3. (Hydra Configuration) - `hydra.yml`
 
 ##### The hydra.yml file configures Ory Hydra's services
 
@@ -87,7 +87,7 @@ There are four main files to configure:
 - Change the system secret in the `hydra.yml` file (CHANGE_ME_TO_REAL_SECRET) to a strong, unique secret for production use.
 - Customize the urls section to match your application's endpoints.
 
-#### (Identity Schema Configuration) - `identity.schema.json`
+#### 4. (Identity Schema Configuration) - `identity.schema.json`
 
 ##### This file defines the identity schema for users in Kratos, including traits like email and password
 
