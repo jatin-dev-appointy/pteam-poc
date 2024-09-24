@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/gorilla/securecookie"
 	"net/http"
 	"time"
+
+	"github.com/gorilla/securecookie"
 )
 
-func encryptTempToCookie(w http.ResponseWriter, r *http.Request, name, value, path string) error {
+func encryptTempToCookie(w http.ResponseWriter, _ *http.Request, name, value, path string) error {
 	sec := securecookie.New(
 		[]byte("development-credentials-hash----"),
 		nil,

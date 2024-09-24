@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/coreos/go-oidc v2.2.1+incompatible
+	github.com/go-openapi/strfmt v0.19.0
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/securecookie v1.1.2
 	github.com/ory/hydra/sdk/go/hydra v0.0.1
@@ -24,7 +25,6 @@ require (
 	github.com/go-openapi/loads v0.18.0 // indirect
 	github.com/go-openapi/runtime v0.19.0 // indirect
 	github.com/go-openapi/spec v0.18.0 // indirect
-	github.com/go-openapi/strfmt v0.19.0 // indirect
 	github.com/go-openapi/swag v0.19.0 // indirect
 	github.com/go-openapi/validate v0.19.0 // indirect
 	github.com/mailru/easyjson v0.0.0-20190312143242-1de009706dbe // indirect

@@ -214,6 +214,11 @@ func SignInCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 
 	provider, err := oidc.NewProvider(context.Background(), HYDRA_PUBLIC_URL)
+	if err != nil {
+		fmt.Println("DebugAuth: Failed to get provider: ", err.Error())
+		http.Error(w, "Failed to get provider: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 	authConfig := oauth2.Config{
 		Endpoint:     provider.Endpoint(),
 		ClientID:     CLIENT_ID,
