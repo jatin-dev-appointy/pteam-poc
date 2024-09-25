@@ -1,0 +1,2302 @@
+{
+	"info": {
+		"_postman_id": "bd66596d-5202-4539-8baf-cd62c1d17bba",
+		"name": "poc-pteam",
+		"description": "This is a Postman Collection Consisting of 4 Modules  \n\\- Custom Auth Interface  \n\\- Ory Kratos Identity API  \n\\- Ory Hydra Client API  \n\\- Ory Hydra Auth API\n\nFor Complete API Spec of Hydra/Kratos API's  \n\\- [https://www.ory.sh/docs/hydra/reference/api](https://www.ory.sh/docs/hydra/reference/api)  \n\\- [https://www.ory.sh/docs/kratos/reference/api](https://www.ory.sh/docs/kratos/reference/api)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "20290085"
+	},
+	"item": [
+		{
+			"name": "Custom Auth Interface",
+			"item": [
+				{
+					"name": "Sign-In",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{customBaseUrl}}/sign-in",
+						"description": "This is the initial endpoint used to Initiate the Sign In Process."
+					},
+					"response": []
+				},
+				{
+					"name": "Sign-In Callback",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{customBaseUrl}}/callback?state=44173a11-6782-46d9-86d0-dc9501f72f3c&code=ory_at_7HSFNLx_IgWaLGgb4n4zyrbgbAQs7uSNp9pv-cOF4UY.VA7Nc-eHY66-jj5sFUl72S2SRpeleSAJUONVKvM0SZw&nonce",
+							"host": [
+								"{{customBaseUrl}}"
+							],
+							"path": [
+								"callback"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "44173a11-6782-46d9-86d0-dc9501f72f3c",
+									"description": "A UUID value that is set initially in the Sign-In Endpoint"
+								},
+								{
+									"key": "code",
+									"value": "ory_at_7HSFNLx_IgWaLGgb4n4zyrbgbAQs7uSNp9pv-cOF4UY.VA7Nc-eHY66-jj5sFUl72S2SRpeleSAJUONVKvM0SZw",
+									"description": "Token after Successful Authorization"
+								},
+								{
+									"key": "nonce",
+									"value": null,
+									"description": "Another UUID value to verify idToken.Nonce"
+								}
+							]
+						},
+						"description": "This Will be the passed as {redirect_uri} to hydra auth request so that it will be called post successful authorization."
+					},
+					"response": []
+				},
+				{
+					"name": "Sign-Out",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{customBaseUrl}}/logout",
+						"description": "This is the initial endpoint used to Initiate the Sign Out Process."
+					},
+					"response": []
+				},
+				{
+					"name": "Sign-Out Callback",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{customBaseUrl}}/logout-callback?state=44173a11-6782-46d9-86d0-dc9501f72f3c",
+							"host": [
+								"{{customBaseUrl}}"
+							],
+							"path": [
+								"logout-callback"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "44173a11-6782-46d9-86d0-dc9501f72f3c",
+									"description": "A UUID value that is set initially in the Sign-Out Endpoint"
+								}
+							]
+						},
+						"description": "This Will be the passed as {post_logout_redirect_uri} to hydra log-out request so that it will be called post successful logout from Authorization Server.\n\nHere, we also perform Kratos Session Logout."
+					},
+					"response": []
+				},
+				{
+					"name": "Sign-Out Middleware",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{customBaseUrl}}/logout-middleware?logout_challenge=7ed5ac9767994cd48e9373c885f30ebb",
+							"host": [
+								"{{customBaseUrl}}"
+							],
+							"path": [
+								"logout-middleware"
+							],
+							"query": [
+								{
+									"key": "logout_challenge",
+									"value": "7ed5ac9767994cd48e9373c885f30ebb",
+									"description": "A unique value returned from Authorization Server"
+								}
+							]
+						},
+						"description": "This will be called to Accept Logout from Hydra Authorization Server."
+					},
+					"response": []
+				}
+			],
+			"description": "A custom backend server communicate with ory kratos and hydra.\n\nIt will have some custom Endpoints that are described In the Collection."
+		},
+		{
+			"name": "Ory Identity API",
+			"item": [
+				{
+					"name": "List Identities",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": {
+								"key": "Authorization",
+								"value": "{{apiKey}}",
+								"in": "header"
+							}
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{kratosAdminUrl}}/admin/identities?include_credential=password&include_credential=oidc",
+							"host": [
+								"{{kratosAdminUrl}}"
+							],
+							"path": [
+								"admin",
+								"identities"
+							],
+							"query": [
+								{
+									"key": "per_page",
+									"value": "250",
+									"description": "Deprecated Items per Page\n\nDEPRECATED: Please use `page_token` instead. This parameter will be removed in the future.\n\nThis is the number of items per page.",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "<long>",
+									"description": "Deprecated Pagination Page\n\nDEPRECATED: Please use `page_token` instead. This parameter will be removed in the future.\n\nThis value is currently an integer, but it is not sequential. The value is not the page number, but a\nreference. The next page can be any number and some numbers might return an empty list.\n\nFor example, page 2 might not follow after page 1. And even if page 3 and 5 exist, but page 4 might not exist.\nThe first page can be retrieved by omitting this parameter. Following page pointers will be returned in the\n`Link` header.",
+									"disabled": true
+								},
+								{
+									"key": "page_size",
+									"value": "250",
+									"description": "Page Size\n\nThis is the number of items per page to return. For details on pagination please head over to the\n[pagination documentation](https://www.ory.sh/docs/ecosystem/api-design#pagination).",
+									"disabled": true
+								},
+								{
+									"key": "consistency",
+									"value": "strong",
+									"description": "Read Consistency Level (preview)\n\nThe read consistency level determines the consistency guarantee for reads:\n\nstrong (slow): The read is guaranteed to return the most recent data committed at the start of the read.\neventual (very fast): The result will return data that is about 4.8 seconds old.\n\nThe default consistency guarantee can be changed in the Ory Network Console or using the Ory CLI with\n`ory patch project --replace '/previews/default_read_consistency_level=\"strong\"'`.\n\nSetting the default consistency level to `eventual` may cause regressions in the future as we add consistency\ncontrols to more APIs. Currently, the following APIs will be affected by this setting:\n\n`GET /admin/identities`\n\nThis feature is in preview and only available in Ory Network.\n ConsistencyLevelUnset  ConsistencyLevelUnset is the unset / default consistency level.\nstrong ConsistencyLevelStrong  ConsistencyLevelStrong is the strong consistency level.\neventual ConsistencyLevelEventual  ConsistencyLevelEventual is the eventual consistency level using follower read timestamps.",
+									"disabled": true
+								},
+								{
+									"key": "ids",
+									"value": "<string>",
+									"description": "List of ids used to filter identities.\nIf this list is empty, then no filter will be applied.",
+									"disabled": true
+								},
+								{
+									"key": "ids",
+									"value": "<string>",
+									"description": "List of ids used to filter identities.\nIf this list is empty, then no filter will be applied.",
+									"disabled": true
+								},
+								{
+									"key": "credentials_identifier",
+									"value": "<string>",
+									"description": "CredentialsIdentifier is the identifier (username, email) of the credentials to look up using exact match.\nOnly one of CredentialsIdentifier and CredentialsIdentifierSimilar can be used.",
+									"disabled": true
+								},
+								{
+									"key": "preview_credentials_identifier_similar",
+									"value": "<string>",
+									"description": "This is an EXPERIMENTAL parameter that WILL CHANGE. Do NOT rely on consistent, deterministic behavior.\nTHIS PARAMETER WILL BE REMOVED IN AN UPCOMING RELEASE WITHOUT ANY MIGRATION PATH.\n\nCredentialsIdentifierSimilar is the (partial) identifier (username, email) of the credentials to look up using similarity search.\nOnly one of CredentialsIdentifier and CredentialsIdentifierSimilar can be used.",
+									"disabled": true
+								},
+								{
+									"key": "include_credential",
+									"value": "password",
+									"description": "Include Credentials in Response"
+								},
+								{
+									"key": "include_credential",
+									"value": "oidc",
+									"description": "Include Credentials in Response"
+								}
+							]
+						},
+						"description": "Lists all [identities](https://www.ory.sh/docs/kratos/concepts/identity-user-model) in the system."
+					},
+					"response": [
+						{
+							"name": "(Structure) - List Identities Paginated",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "<API Key>",
+										"description": "Added as a part of security scheme: apikey"
+									}
+								],
+								"url": {
+									"raw": "http://127.0.0.1:4434/admin/identities?per_page=250&page=<long>&page_size=250&page_token=1&consistency=strong&ids=<string>&credentials_identifier=<string>&preview_credentials_identifier_similar=<string>",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "4434",
+									"path": [
+										"admin",
+										"identities"
+									],
+									"query": [
+										{
+											"key": "per_page",
+											"value": "250",
+											"description": "Deprecated Items per Page\n\nDEPRECATED: Please use `page_token` instead. This parameter will be removed in the future.\n\nThis is the number of items per page."
+										},
+										{
+											"key": "page",
+											"value": "<long>",
+											"description": "Deprecated Pagination Page\n\nDEPRECATED: Please use `page_token` instead. This parameter will be removed in the future.\n\nThis value is currently an integer, but it is not sequential. The value is not the page number, but a\nreference. The next page can be any number and some numbers might return an empty list.\n\nFor example, page 2 might not follow after page 1. And even if page 3 and 5 exist, but page 4 might not exist.\nThe first page can be retrieved by omitting this parameter. Following page pointers will be returned in the\n`Link` header."
+										},
+										{
+											"key": "page_size",
+											"value": "250",
+											"description": "Page Size\n\nThis is the number of items per page to return. For details on pagination please head over to the\n[pagination documentation](https://www.ory.sh/docs/ecosystem/api-design#pagination)."
+										},
+										{
+											"key": "page_token",
+											"value": "1",
+											"description": "Next Page Token\n\nThe next page token. For details on pagination please head over to the\n[pagination documentation](https://www.ory.sh/docs/ecosystem/api-design#pagination)."
+										},
+										{
+											"key": "consistency",
+											"value": "strong",
+											"description": "Read Consistency Level (preview)\n\nThe read consistency level determines the consistency guarantee for reads:\n\nstrong (slow): The read is guaranteed to return the most recent data committed at the start of the read.\neventual (very fast): The result will return data that is about 4.8 seconds old.\n\nThe default consistency guarantee can be changed in the Ory Network Console or using the Ory CLI with\n`ory patch project --replace '/previews/default_read_consistency_level=\"strong\"'`.\n\nSetting the default consistency level to `eventual` may cause regressions in the future as we add consistency\ncontrols to more APIs. Currently, the following APIs will be affected by this setting:\n\n`GET /admin/identities`\n\nThis feature is in preview and only available in Ory Network.\n ConsistencyLevelUnset  ConsistencyLevelUnset is the unset / default consistency level.\nstrong ConsistencyLevelStrong  ConsistencyLevelStrong is the strong consistency level.\neventual ConsistencyLevelEventual  ConsistencyLevelEventual is the eventual consistency level using follower read timestamps."
+										},
+										{
+											"key": "ids",
+											"value": "<string>",
+											"description": "List of ids used to filter identities.\nIf this list is empty, then no filter will be applied."
+										},
+										{
+											"key": "credentials_identifier",
+											"value": "<string>",
+											"description": "CredentialsIdentifier is the identifier (username, email) of the credentials to look up using exact match.\nOnly one of CredentialsIdentifier and CredentialsIdentifierSimilar can be used."
+										},
+										{
+											"key": "preview_credentials_identifier_similar",
+											"value": "<string>",
+											"description": "This is an EXPERIMENTAL parameter that WILL CHANGE. Do NOT rely on consistent, deterministic behavior.\nTHIS PARAMETER WILL BE REMOVED IN AN UPCOMING RELEASE WITHOUT ANY MIGRATION PATH.\n\nCredentialsIdentifierSimilar is the (partial) identifier (username, email) of the credentials to look up using similarity search.\nOnly one of CredentialsIdentifier and CredentialsIdentifierSimilar can be used."
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"id\": \"<uuid>\",\n    \"schema_id\": \"<string>\",\n    \"schema_url\": \"<string>\",\n    \"traits\": {\n      \"description\": \"Traits represent an identity's traits. The identity is able to create, modify, and delete traits\\nin a self-service manner. The input will always be validated against the JSON Schema defined\\nin `schema_url`.\"\n    },\n    \"created_at\": \"<dateTime>\",\n    \"credentials\": {\n      \"Duis_3\": {\n        \"config\": {},\n        \"created_at\": \"<dateTime>\",\n        \"identifiers\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"type\": \"password\",\n        \"updated_at\": \"<dateTime>\",\n        \"version\": \"<long>\"\n      },\n      \"dolore_a31\": {\n        \"config\": {},\n        \"created_at\": \"<dateTime>\",\n        \"identifiers\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"type\": \"code\",\n        \"updated_at\": \"<dateTime>\",\n        \"version\": \"<long>\"\n      }\n    },\n    \"metadata_admin\": {\n      \"description\": \"NullJSONRawMessage represents a json.RawMessage that works well with JSON, SQL, and Swagger and is NULLable-\",\n      \"nullable\": true\n    },\n    \"metadata_public\": {\n      \"description\": \"NullJSONRawMessage represents a json.RawMessage that works well with JSON, SQL, and Swagger and is NULLable-\",\n      \"nullable\": true\n    },\n    \"organization_id\": \"<string>\",\n    \"recovery_addresses\": [\n      {\n        \"id\": \"<uuid>\",\n        \"value\": \"<string>\",\n        \"via\": \"<string>\",\n        \"created_at\": \"<dateTime>\",\n        \"updated_at\": \"<dateTime>\"\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"value\": \"<string>\",\n        \"via\": \"<string>\",\n        \"created_at\": \"<dateTime>\",\n        \"updated_at\": \"<dateTime>\"\n      }\n    ],\n    \"state\": \"inactive\",\n    \"state_changed_at\": \"<dateTime>\",\n    \"updated_at\": \"<dateTime>\",\n    \"verifiable_addresses\": [\n      {\n        \"value\": \"<string>\",\n        \"verified\": \"<boolean>\",\n        \"via\": \"sms\",\n        \"status\": \"<string>\",\n        \"created_at\": \"<dateTime>\",\n        \"id\": \"<uuid>\",\n        \"updated_at\": \"<dateTime>\",\n        \"verified_at\": \"<dateTime>\"\n      },\n      {\n        \"value\": \"<string>\",\n        \"verified\": \"<boolean>\",\n        \"via\": \"sms\",\n        \"status\": \"<string>\",\n        \"created_at\": \"<dateTime>\",\n        \"id\": \"<uuid>\",\n        \"updated_at\": \"<dateTime>\",\n        \"verified_at\": \"<dateTime>\"\n      }\n    ]\n  },\n  {\n    \"id\": \"<uuid>\",\n    \"schema_id\": \"<string>\",\n    \"schema_url\": \"<string>\",\n    \"traits\": {\n      \"description\": \"Traits represent an identity's traits. The identity is able to create, modify, and delete traits\\nin a self-service manner. The input will always be validated against the JSON Schema defined\\nin `schema_url`.\"\n    },\n    \"created_at\": \"<dateTime>\",\n    \"credentials\": {\n      \"dod1\": {\n        \"config\": {},\n        \"created_at\": \"<dateTime>\",\n        \"identifiers\": [\n          \"<string>\",\n          \"<string>\"\n        ],\n        \"type\": \"code\",\n        \"updated_at\": \"<dateTime>\",\n        \"version\": \"<long>\"\n      }\n    },\n    \"metadata_admin\": {\n      \"description\": \"NullJSONRawMessage represents a json.RawMessage that works well with JSON, SQL, and Swagger and is NULLable-\",\n      \"nullable\": true\n    },\n    \"metadata_public\": {\n      \"description\": \"NullJSONRawMessage represents a json.RawMessage that works well with JSON, SQL, and Swagger and is NULLable-\",\n      \"nullable\": true\n    },\n    \"organization_id\": \"<string>\",\n    \"recovery_addresses\": [\n      {\n        \"id\": \"<uuid>\",\n        \"value\": \"<string>\",\n        \"via\": \"<string>\",\n        \"created_at\": \"<dateTime>\",\n        \"updated_at\": \"<dateTime>\"\n      },\n      {\n        \"id\": \"<uuid>\",\n        \"value\": \"<string>\",\n        \"via\": \"<string>\",\n        \"created_at\": \"<dateTime>\",\n        \"updated_at\": \"<dateTime>\"\n      }\n    ],\n    \"state\": \"inactive\",\n    \"state_changed_at\": \"<dateTime>\",\n    \"updated_at\": \"<dateTime>\",\n    \"verifiable_addresses\": [\n      {\n        \"value\": \"<string>\",\n        \"verified\": \"<boolean>\",\n        \"via\": \"sms\",\n        \"status\": \"<string>\",\n        \"created_at\": \"<dateTime>\",\n        \"id\": \"<uuid>\",\n        \"updated_at\": \"<dateTime>\",\n        \"verified_at\": \"<dateTime>\"\n      },\n      {\n        \"value\": \"<string>\",\n        \"verified\": \"<boolean>\",\n        \"via\": \"email\",\n        \"status\": \"<string>\",\n        \"created_at\": \"<dateTime>\",\n        \"id\": \"<uuid>\",\n        \"updated_at\": \"<dateTime>\",\n        \"verified_at\": \"<dateTime>\"\n      }\n    ]\n  }\n]"
+						},
+						{
+							"name": "(Structure) - errorGeneric",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "<API Key>",
+										"description": "Added as a part of security scheme: apikey"
+									}
+								],
+								"url": {
+									"raw": "{{kratosAdminUrl}}/admin/identities?per_page=250&page=<long>&page_size=250&page_token=1&consistency=strong&ids=<string>&credentials_identifier=<string>&preview_credentials_identifier_similar=<string>",
+									"host": [
+										"{{kratosAdminUrl}}"
+									],
+									"path": [
+										"admin",
+										"identities"
+									],
+									"query": [
+										{
+											"key": "per_page",
+											"value": "250",
+											"description": "Deprecated Items per Page\n\nDEPRECATED: Please use `page_token` instead. This parameter will be removed in the future.\n\nThis is the number of items per page."
+										},
+										{
+											"key": "page",
+											"value": "<long>",
+											"description": "Deprecated Pagination Page\n\nDEPRECATED: Please use `page_token` instead. This parameter will be removed in the future.\n\nThis value is currently an integer, but it is not sequential. The value is not the page number, but a\nreference. The next page can be any number and some numbers might return an empty list.\n\nFor example, page 2 might not follow after page 1. And even if page 3 and 5 exist, but page 4 might not exist.\nThe first page can be retrieved by omitting this parameter. Following page pointers will be returned in the\n`Link` header."
+										},
+										{
+											"key": "page_size",
+											"value": "250",
+											"description": "Page Size\n\nThis is the number of items per page to return. For details on pagination please head over to the\n[pagination documentation](https://www.ory.sh/docs/ecosystem/api-design#pagination)."
+										},
+										{
+											"key": "page_token",
+											"value": "1",
+											"description": "Next Page Token\n\nThe next page token. For details on pagination please head over to the\n[pagination documentation](https://www.ory.sh/docs/ecosystem/api-design#pagination)."
+										},
+										{
+											"key": "consistency",
+											"value": "strong",
+											"description": "Read Consistency Level (preview)\n\nThe read consistency level determines the consistency guarantee for reads:\n\nstrong (slow): The read is guaranteed to return the most recent data committed at the start of the read.\neventual (very fast): The result will return data that is about 4.8 seconds old.\n\nThe default consistency guarantee can be changed in the Ory Network Console or using the Ory CLI with\n`ory patch project --replace '/previews/default_read_consistency_level=\"strong\"'`.\n\nSetting the default consistency level to `eventual` may cause regressions in the future as we add consistency\ncontrols to more APIs. Currently, the following APIs will be affected by this setting:\n\n`GET /admin/identities`\n\nThis feature is in preview and only available in Ory Network.\n ConsistencyLevelUnset  ConsistencyLevelUnset is the unset / default consistency level.\nstrong ConsistencyLevelStrong  ConsistencyLevelStrong is the strong consistency level.\neventual ConsistencyLevelEventual  ConsistencyLevelEventual is the eventual consistency level using follower read timestamps."
+										},
+										{
+											"key": "ids",
+											"value": "<string>",
+											"description": "List of ids used to filter identities.\nIf this list is empty, then no filter will be applied."
+										},
+										{
+											"key": "credentials_identifier",
+											"value": "<string>",
+											"description": "CredentialsIdentifier is the identifier (username, email) of the credentials to look up using exact match.\nOnly one of CredentialsIdentifier and CredentialsIdentifierSimilar can be used."
+										},
+										{
+											"key": "preview_credentials_identifier_similar",
+											"value": "<string>",
+											"description": "This is an EXPERIMENTAL parameter that WILL CHANGE. Do NOT rely on consistent, deterministic behavior.\nTHIS PARAMETER WILL BE REMOVED IN AN UPCOMING RELEASE WITHOUT ANY MIGRATION PATH.\n\nCredentialsIdentifierSimilar is the (partial) identifier (username, email) of the credentials to look up using similarity search.\nOnly one of CredentialsIdentifier and CredentialsIdentifierSimilar can be used."
+										}
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": {\n    \"message\": \"<string>\",\n    \"code\": \"<long>\",\n    \"debug\": \"<string>\",\n    \"details\": {},\n    \"id\": \"<string>\",\n    \"reason\": \"<string>\",\n    \"request\": \"<string>\",\n    \"status\": \"<string>\"\n  }\n}"
+						},
+						{
+							"name": "List Identities",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{kratosAdminUrl}}/admin/identities?include_credential=password&include_credential=oidc",
+									"host": [
+										"{{kratosAdminUrl}}"
+									],
+									"path": [
+										"admin",
+										"identities"
+									],
+									"query": [
+										{
+											"key": "per_page",
+											"value": "250",
+											"description": "Deprecated Items per Page\n\nDEPRECATED: Please use `page_token` instead. This parameter will be removed in the future.\n\nThis is the number of items per page.",
+											"disabled": true
+										},
+										{
+											"key": "page",
+											"value": "<long>",
+											"description": "Deprecated Pagination Page\n\nDEPRECATED: Please use `page_token` instead. This parameter will be removed in the future.\n\nThis value is currently an integer, but it is not sequential. The value is not the page number, but a\nreference. The next page can be any number and some numbers might return an empty list.\n\nFor example, page 2 might not follow after page 1. And even if page 3 and 5 exist, but page 4 might not exist.\nThe first page can be retrieved by omitting this parameter. Following page pointers will be returned in the\n`Link` header.",
+											"disabled": true
+										},
+										{
+											"key": "page_size",
+											"value": "250",
+											"description": "Page Size\n\nThis is the number of items per page to return. For details on pagination please head over to the\n[pagination documentation](https://www.ory.sh/docs/ecosystem/api-design#pagination).",
+											"disabled": true
+										},
+										{
+											"key": "consistency",
+											"value": "strong",
+											"description": "Read Consistency Level (preview)\n\nThe read consistency level determines the consistency guarantee for reads:\n\nstrong (slow): The read is guaranteed to return the most recent data committed at the start of the read.\neventual (very fast): The result will return data that is about 4.8 seconds old.\n\nThe default consistency guarantee can be changed in the Ory Network Console or using the Ory CLI with\n`ory patch project --replace '/previews/default_read_consistency_level=\"strong\"'`.\n\nSetting the default consistency level to `eventual` may cause regressions in the future as we add consistency\ncontrols to more APIs. Currently, the following APIs will be affected by this setting:\n\n`GET /admin/identities`\n\nThis feature is in preview and only available in Ory Network.\n ConsistencyLevelUnset  ConsistencyLevelUnset is the unset / default consistency level.\nstrong ConsistencyLevelStrong  ConsistencyLevelStrong is the strong consistency level.\neventual ConsistencyLevelEventual  ConsistencyLevelEventual is the eventual consistency level using follower read timestamps.",
+											"disabled": true
+										},
+										{
+											"key": "ids",
+											"value": "<string>",
+											"description": "List of ids used to filter identities.\nIf this list is empty, then no filter will be applied.",
+											"disabled": true
+										},
+										{
+											"key": "ids",
+											"value": "<string>",
+											"description": "List of ids used to filter identities.\nIf this list is empty, then no filter will be applied.",
+											"disabled": true
+										},
+										{
+											"key": "credentials_identifier",
+											"value": "<string>",
+											"description": "CredentialsIdentifier is the identifier (username, email) of the credentials to look up using exact match.\nOnly one of CredentialsIdentifier and CredentialsIdentifierSimilar can be used.",
+											"disabled": true
+										},
+										{
+											"key": "preview_credentials_identifier_similar",
+											"value": "<string>",
+											"description": "This is an EXPERIMENTAL parameter that WILL CHANGE. Do NOT rely on consistent, deterministic behavior.\nTHIS PARAMETER WILL BE REMOVED IN AN UPCOMING RELEASE WITHOUT ANY MIGRATION PATH.\n\nCredentialsIdentifierSimilar is the (partial) identifier (username, email) of the credentials to look up using similarity search.\nOnly one of CredentialsIdentifier and CredentialsIdentifierSimilar can be used.",
+											"disabled": true
+										},
+										{
+											"key": "include_credential",
+											"value": "password"
+										},
+										{
+											"key": "include_credential",
+											"value": "oidc"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "private, no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Link",
+									"value": "</admin/identities?include_credential=password&include_credential=oidc&page_size=250&page_token=00000000-0000-0000-0000-000000000000>; rel=\"first\""
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 25 Sep 2024 08:13:17 GMT"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": \"1ab50e55-06cc-443d-8239-7b262babdbbe\",\n        \"credentials\": {\n            \"code\": {\n                \"type\": \"code\",\n                \"identifiers\": [\n                    \"jatintest@test.com\"\n                ],\n                \"version\": 0,\n                \"created_at\": \"2024-09-18T06:26:28.020326Z\",\n                \"updated_at\": \"2024-09-18T06:26:28.020326Z\"\n            },\n            \"password\": {\n                \"type\": \"password\",\n                \"identifiers\": [\n                    \"jatintest@test.com\"\n                ],\n                \"config\": {\n                    \"hashed_password\": \"$2a$12$sHoSnG90PjqA0sDOT6RbeeFfydj40fpgYQfedf5114NeqNg/avJOy\"\n                },\n                \"version\": 0,\n                \"created_at\": \"2024-09-18T06:26:28.020333Z\",\n                \"updated_at\": \"2024-09-18T06:26:28.020333Z\"\n            }\n        },\n        \"schema_id\": \"default\",\n        \"schema_url\": \"http://127.0.0.1:4433/schemas/ZGVmYXVsdA\",\n        \"state\": \"active\",\n        \"state_changed_at\": \"2024-09-18T06:26:26.124047Z\",\n        \"traits\": {\n            \"hd\": \"Appointy\",\n            \"email\": \"jatintest@test.com\",\n            \"last_name\": \"Gupta\",\n            \"first_name\": \"Jatin\",\n            \"email_secondary\": \"jatintest2@test.com\"\n        },\n        \"verifiable_addresses\": [\n            {\n                \"id\": \"af2c4514-1544-4e84-b7ef-37a173eac294\",\n                \"value\": \"jatintest@test.com\",\n                \"verified\": false,\n                \"via\": \"email\",\n                \"status\": \"sent\",\n                \"created_at\": \"2024-09-18T06:26:26.915532Z\",\n                \"updated_at\": \"2024-09-18T06:26:26.915532Z\"\n            }\n        ],\n        \"recovery_addresses\": [\n            {\n                \"id\": \"9341c396-118b-46c6-951c-8d35addb4396\",\n                \"value\": \"jatintest2@test.com\",\n                \"via\": \"email\",\n                \"created_at\": \"2024-09-18T06:26:27.43886Z\",\n                \"updated_at\": \"2024-09-18T06:26:27.43886Z\"\n            },\n            {\n                \"id\": \"b7311655-cbc8-4294-8213-efe29a11359c\",\n                \"value\": \"jatintest@test.com\",\n                \"via\": \"email\",\n                \"created_at\": \"2024-09-18T06:26:27.438847Z\",\n                \"updated_at\": \"2024-09-18T06:26:27.438847Z\"\n            }\n        ],\n        \"metadata_public\": null,\n        \"metadata_admin\": null,\n        \"created_at\": \"2024-09-18T06:26:26.389964Z\",\n        \"updated_at\": \"2024-09-18T06:26:26.389964Z\",\n        \"organization_id\": null\n    },\n    {\n        \"id\": \"38821d3d-0a7d-47e8-be3d-7e66a51e70cc\",\n        \"credentials\": {\n            \"code\": {\n                \"type\": \"code\",\n                \"identifiers\": [\n                    \"jatin@appointy.com\"\n                ],\n                \"version\": 0,\n                \"created_at\": \"2024-09-17T05:06:24.225123Z\",\n                \"updated_at\": \"2024-09-17T05:06:24.225123Z\"\n            },\n            \"password\": {\n                \"type\": \"password\",\n                \"identifiers\": [\n                    \"jatin@appointy.com\"\n                ],\n                \"config\": {\n                    \"hashed_password\": \"$2a$12$hZpoT1aRdYCiqgvqNTvA.OcHLsCByArkmkrh1/K3yrmOFbwXBOVFK\"\n                },\n                \"version\": 0,\n                \"created_at\": \"2024-09-17T05:06:24.225134Z\",\n                \"updated_at\": \"2024-09-17T05:06:24.225134Z\"\n            }\n        },\n        \"schema_id\": \"default\",\n        \"schema_url\": \"http://127.0.0.1:4433/schemas/ZGVmYXVsdA\",\n        \"state\": \"active\",\n        \"state_changed_at\": \"2024-09-17T05:06:22.630453Z\",\n        \"traits\": {\n            \"email\": \"jatin@appointy.com\",\n            \"last_name\": \"Gupta\",\n            \"first_name\": \"Jatin\"\n        },\n        \"metadata_public\": null,\n        \"metadata_admin\": null,\n        \"created_at\": \"2024-09-17T05:06:22.896483Z\",\n        \"updated_at\": \"2024-09-17T05:06:22.896483Z\",\n        \"organization_id\": null\n    },\n    {\n        \"id\": \"6bf53781-ea30-4037-a8a0-bcd7bf1f4737\",\n        \"credentials\": {\n            \"code\": {\n                \"type\": \"code\",\n                \"identifiers\": [\n                    \"emp-auth@test.com\"\n                ],\n                \"version\": 0,\n                \"created_at\": \"2024-09-17T07:44:32.328199Z\",\n                \"updated_at\": \"2024-09-17T07:44:32.328199Z\"\n            },\n            \"password\": {\n                \"type\": \"password\",\n                \"identifiers\": [\n                    \"emp-auth@test.com\"\n                ],\n                \"config\": {\n                    \"hashed_password\": \"$2a$10$PO2n2aEINLUh/7EPoTySYOQX5hiFtiLw.nxcJNciU4RyP9zIR3UOO\"\n                },\n                \"version\": 0,\n                \"created_at\": \"2024-09-17T07:44:32.328177Z\",\n                \"updated_at\": \"2024-09-17T07:44:32.328177Z\"\n            }\n        },\n        \"schema_id\": \"default\",\n        \"schema_url\": \"http://127.0.0.1:4433/schemas/ZGVmYXVsdA\",\n        \"state\": \"active\",\n        \"state_changed_at\": \"2024-09-17T07:44:30.20839Z\",\n        \"traits\": {\n            \"email\": \"emp-auth@test.com\",\n            \"last_name\": \"Test\",\n            \"first_name\": \"Auth\"\n        },\n        \"verifiable_addresses\": [\n            {\n                \"id\": \"574523f3-9fce-4ad7-88e4-ea2267e871fc\",\n                \"value\": \"emp-auth@test.com\",\n                \"verified\": true,\n                \"via\": \"email\",\n                \"status\": \"completed\",\n                \"verified_at\": \"2024-09-17T07:44:31.129075Z\",\n                \"created_at\": \"2024-09-17T07:44:31.130534Z\",\n                \"updated_at\": \"2024-09-17T07:44:31.130534Z\"\n            }\n        ],\n        \"recovery_addresses\": [\n            {\n                \"id\": \"24d11e6c-25ad-4c40-8ecc-22c9cc33cd25\",\n                \"value\": \"emp-auth@test.com\",\n                \"via\": \"email\",\n                \"created_at\": \"2024-09-17T07:44:31.736004Z\",\n                \"updated_at\": \"2024-09-17T07:44:31.736004Z\"\n            }\n        ],\n        \"metadata_public\": null,\n        \"metadata_admin\": null,\n        \"created_at\": \"2024-09-17T07:44:30.500791Z\",\n        \"updated_at\": \"2024-09-17T07:44:30.500791Z\",\n        \"organization_id\": null\n    },\n    {\n        \"id\": \"73e31804-3db4-4546-95d3-fe5827de7827\",\n        \"credentials\": {\n            \"code\": {\n                \"type\": \"code\",\n                \"identifiers\": [\n                    \"pteam-test@auth.com\"\n                ],\n                \"version\": 0,\n                \"created_at\": \"2024-09-17T07:59:29.025105Z\",\n                \"updated_at\": \"2024-09-17T07:59:29.025105Z\"\n            },\n            \"password\": {\n                \"type\": \"password\",\n                \"identifiers\": [\n                    \"pteam-test@auth.com\"\n                ],\n                \"config\": {\n                    \"hashed_password\": \"$2a$10$Pmax39.7ikPpYEi5CF1GFOVlWP7hgL.pQ7IePtp9tJBdLVXhkY85e\"\n                },\n                \"version\": 0,\n                \"created_at\": \"2024-09-17T07:59:29.025088Z\",\n                \"updated_at\": \"2024-09-17T07:59:29.025088Z\"\n            }\n        },\n        \"schema_id\": \"default\",\n        \"schema_url\": \"http://127.0.0.1:4433/schemas/ZGVmYXVsdA\",\n        \"state\": \"active\",\n        \"state_changed_at\": \"2024-09-17T07:59:27.031586Z\",\n        \"traits\": {\n            \"email\": \"pteam-test@auth.com\",\n            \"last_name\": \"Test2\",\n            \"first_name\": \"Auth\"\n        },\n        \"verifiable_addresses\": [\n            {\n                \"id\": \"6fe7e88a-3f26-4d2f-b3ff-b9b9df82cfe8\",\n                \"value\": \"pteam-test@auth.com\",\n                \"verified\": true,\n                \"via\": \"email\",\n                \"status\": \"completed\",\n                \"verified_at\": \"2024-09-17T08:01:13.827168Z\",\n                \"created_at\": \"2024-09-17T07:59:27.893862Z\",\n                \"updated_at\": \"2024-09-17T07:59:27.893862Z\"\n            }\n        ],\n        \"recovery_addresses\": [\n            {\n                \"id\": \"de6151de-349f-42df-9136-2463e9ef5c99\",\n                \"value\": \"pteam-test@auth.com\",\n                \"via\": \"email\",\n                \"created_at\": \"2024-09-17T07:59:28.460112Z\",\n                \"updated_at\": \"2024-09-17T07:59:28.460112Z\"\n            }\n        ],\n        \"metadata_public\": null,\n        \"metadata_admin\": null,\n        \"created_at\": \"2024-09-17T07:59:27.332431Z\",\n        \"updated_at\": \"2024-09-17T07:59:27.332431Z\",\n        \"organization_id\": null\n    },\n    {\n        \"id\": \"89aea229-3c18-457e-8745-1fc78722a0d7\",\n        \"credentials\": {\n            \"code\": {\n                \"type\": \"code\",\n                \"identifiers\": [\n                    \"tu1@demo.com\"\n                ],\n                \"version\": 0,\n                \"created_at\": \"2024-09-18T07:38:29.616038Z\",\n                \"updated_at\": \"2024-09-18T07:38:29.616038Z\"\n            },\n            \"password\": {\n                \"type\": \"password\",\n                \"identifiers\": [\n                    \"tu1@demo.com\"\n                ],\n                \"config\": {\n                    \"hashed_password\": \"$2a$12$95wM/lnzAWZtHSIZEVR0HOgprmxIV1cX3GtUQ.G2wm8hLN4gaDxG.\"\n                },\n                \"version\": 0,\n                \"created_at\": \"2024-09-18T07:38:29.616031Z\",\n                \"updated_at\": \"2024-09-18T07:38:29.616031Z\"\n            }\n        },\n        \"schema_id\": \"default\",\n        \"schema_url\": \"http://127.0.0.1:4433/schemas/ZGVmYXVsdA\",\n        \"state\": \"active\",\n        \"state_changed_at\": \"2024-09-18T07:38:27.021402Z\",\n        \"traits\": {\n            \"email\": \"tu1@demo.com\",\n            \"last_name\": \"user1\",\n            \"first_name\": \"test\",\n            \"email_secondary\": \"tu1s@demo.com\"\n        },\n        \"verifiable_addresses\": [\n            {\n                \"id\": \"59499163-6b44-4821-a0d1-a2baf4fa59dd\",\n                \"value\": \"tu1@demo.com\",\n                \"verified\": true,\n                \"via\": \"email\",\n                \"status\": \"completed\",\n                \"created_at\": \"2024-09-18T07:38:27.798208Z\",\n                \"updated_at\": \"2024-09-18T07:38:27.798208Z\"\n            }\n        ],\n        \"recovery_addresses\": [\n            {\n                \"id\": \"a58ea59d-5aad-4d29-a0b4-67fffd9e7ecb\",\n                \"value\": \"tu1@demo.com\",\n                \"via\": \"email\",\n                \"created_at\": \"2024-09-18T07:38:28.31558Z\",\n                \"updated_at\": \"2024-09-18T07:38:28.31558Z\"\n            },\n            {\n                \"id\": \"c16e47cf-dd8a-4c4d-93ea-c81fe9f3391e\",\n                \"value\": \"tu1s@demo.com\",\n                \"via\": \"email\",\n                \"created_at\": \"2024-09-18T07:38:28.31559Z\",\n                \"updated_at\": \"2024-09-18T07:38:28.31559Z\"\n            }\n        ],\n        \"metadata_public\": null,\n        \"metadata_admin\": null,\n        \"created_at\": \"2024-09-18T07:38:27.280239Z\",\n        \"updated_at\": \"2024-09-18T07:38:27.280239Z\",\n        \"organization_id\": null\n    },\n    {\n        \"id\": \"964b0ae0-05ff-4fd4-bbde-ac6fefa683e3\",\n        \"credentials\": {\n            \"code\": {\n                \"type\": \"code\",\n                \"identifiers\": [\n                    \"jatin.appointy@gmail.com\"\n                ],\n                \"version\": 0,\n                \"created_at\": \"2024-09-17T07:08:51.642994Z\",\n                \"updated_at\": \"2024-09-17T07:08:51.642994Z\"\n            },\n            \"oidc\": {\n                \"type\": \"oidc\",\n                \"identifiers\": [\n                    \"google-kratos-poc:114305144245021705980\"\n                ],\n                \"config\": {\n                    \"providers\": [\n                        {\n                            \"initial_id_token\": \"eyJhbGciOiJSUzI1NiIsImtpZCI6ImIyNjIwZDVlN2YxMzJiNTJhZmU4ODc1Y2RmMzc3NmMwNjQyNDlkMDQiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI3NTYxMjg2ODMxMTgtaGlyYmtlNmp0YmRrdmNzNHFhNXE4NnNpMTI4NDBnbmUuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI3NTYxMjg2ODMxMTgtaGlyYmtlNmp0YmRrdmNzNHFhNXE4NnNpMTI4NDBnbmUuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTQzMDUxNDQyNDUwMjE3MDU5ODAiLCJlbWFpbCI6ImphdGluLmFwcG9pbnR5QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJhdF9oYXNoIjoiak5ZNXM4NUsyZWdVRWtYTHFNbGUyUSIsIm5hbWUiOiJKYXRpbiBBcHBvaW50eSIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NKUTdQWnRrd0dKaHRoN2lJdTkxNGt5eU1kdmdONTMtSUJEYkx2WkFwcDBiQ3ZERXc9czk2LWMiLCJnaXZlbl9uYW1lIjoiSmF0aW4iLCJmYW1pbHlfbmFtZSI6IkFwcG9pbnR5IiwiaWF0IjoxNzI2NTU2OTI3LCJleHAiOjE3MjY1NjA1Mjd9.UGf2c6Q8oNWmYtPN-JXlKdfx3XgBw1jZB3OVcRog6_j-izGNdwfLb0Ba1EV4FhlgIX-iMt1m92Pn7fLneXHZQF0VV9th8lkY4JhS1l0ntrbXw80W6ghfIT_BU74vGXQRwpRYHzf517o2V6QSjxWs_blgKntihrlTsGt-J6qn-QHWgWrgsRyAKGLwzk4VmdDcNG1r6vGGWbSsdf22sukMHGiKa2BnC3i5MwJsFU9TI-r33CrF-c-lzMAMGwfVCIFcoVv1b66v_HXPG_UvUenPMQ5K4z3_dK3fnqpaVFlVPXn2kg6YdfeBJKIxfmkoVwDteJhGrNDBHE0fJCe5NJzoTA\",\n                            \"initial_access_token\": \"ya29.a0AcM612w6u7S9c2J69ZvURgIZgKUS0w4psHyH9pVJMangxmlDH3x2EMOh1j1HEe6BZJPEMTeS-Ti1Alrm0jWJhzFTKUrx98ZZ2OcIUaN8LvB_13MdM5YiSIuPUo6ft_7Obnwu27_cXpFKkl8l3oE1BndCYAYRktTbLrYaCgYKAUcSARISFQHGX2MigQN8G_5VOJbBbCFTNngDpg0170\",\n                            \"initial_refresh_token\": \"\",\n                            \"subject\": \"114305144245021705980\",\n                            \"provider\": \"google-kratos-poc\",\n                            \"organization\": \"\"\n                        }\n                    ]\n                },\n                \"version\": 0,\n                \"created_at\": \"2024-09-17T07:08:51.643001Z\",\n                \"updated_at\": \"2024-09-17T07:08:51.643001Z\"\n            },\n            \"password\": {\n                \"type\": \"password\",\n                \"identifiers\": [\n                    \"jatin.appointy@gmail.com\"\n                ],\n                \"config\": {},\n                \"version\": 0,\n                \"created_at\": \"2024-09-17T07:08:51.642981Z\",\n                \"updated_at\": \"2024-09-17T07:08:51.642981Z\"\n            }\n        },\n        \"schema_id\": \"default\",\n        \"schema_url\": \"http://127.0.0.1:4433/schemas/ZGVmYXVsdA\",\n        \"state\": \"active\",\n        \"state_changed_at\": \"2024-09-17T07:08:48.289553Z\",\n        \"traits\": {\n            \"email\": \"jatin.appointy@gmail.com\",\n            \"last_name\": \"Appointy\",\n            \"first_name\": \"Jatin\"\n        },\n        \"verifiable_addresses\": [\n            {\n                \"id\": \"fbcb52d5-14a2-448a-bafb-518d436839c8\",\n                \"value\": \"jatin.appointy@gmail.com\",\n                \"verified\": true,\n                \"via\": \"email\",\n                \"status\": \"completed\",\n                \"verified_at\": \"2024-09-17T07:11:20.269042Z\",\n                \"created_at\": \"2024-09-17T07:08:49.211338Z\",\n                \"updated_at\": \"2024-09-17T07:08:49.211338Z\"\n            }\n        ],\n        \"recovery_addresses\": [\n            {\n                \"id\": \"a308cb2c-362d-4291-bda3-d28e7898e4dc\",\n                \"value\": \"jatin.appointy@gmail.com\",\n                \"via\": \"email\",\n                \"created_at\": \"2024-09-17T07:08:49.980024Z\",\n                \"updated_at\": \"2024-09-17T07:08:49.980024Z\"\n            }\n        ],\n        \"metadata_public\": null,\n        \"metadata_admin\": null,\n        \"created_at\": \"2024-09-17T07:08:48.552589Z\",\n        \"updated_at\": \"2024-09-17T07:08:48.552589Z\",\n        \"organization_id\": null\n    },\n    {\n        \"id\": \"a03a6686-6bb6-418d-8478-5936766a5f7e\",\n        \"credentials\": {\n            \"code\": {\n                \"type\": \"code\",\n                \"identifiers\": [\n                    \"testuuser11@demo.com\"\n                ],\n                \"version\": 0,\n                \"created_at\": \"2024-09-18T06:01:15.831273Z\",\n                \"updated_at\": \"2024-09-18T06:01:15.831273Z\"\n            },\n            \"password\": {\n                \"type\": \"password\",\n                \"identifiers\": [\n                    \"testuuser11@demo.com\"\n                ],\n                \"config\": {\n                    \"hashed_password\": \"$2a$12$xayCCliiqrC1VdmxQHIs8e50kydgupSYJSRBo9E7CvDq2vdQje4zu\"\n                },\n                \"version\": 0,\n                \"created_at\": \"2024-09-18T06:01:15.831265Z\",\n                \"updated_at\": \"2024-09-18T06:01:15.831265Z\"\n            }\n        },\n        \"schema_id\": \"default\",\n        \"schema_url\": \"http://127.0.0.1:4433/schemas/ZGVmYXVsdA\",\n        \"state\": \"active\",\n        \"state_changed_at\": \"2024-09-18T06:01:13.242208Z\",\n        \"traits\": {\n            \"email\": \"testuuser11@demo.com\",\n            \"last_name\": \"User\",\n            \"first_name\": \"Test\",\n            \"email_secondary\": \"testusersec@demo.com\"\n        },\n        \"verifiable_addresses\": [\n            {\n                \"id\": \"dffad4dd-82e6-49a2-bf52-343ddc259376\",\n                \"value\": \"testuuser11@demo.com\",\n                \"verified\": true,\n                \"via\": \"email\",\n                \"status\": \"completed\",\n                \"created_at\": \"2024-09-18T06:01:14.01847Z\",\n                \"updated_at\": \"2024-09-18T06:01:14.01847Z\"\n            }\n        ],\n        \"recovery_addresses\": [\n            {\n                \"id\": \"112b9b27-2af6-4f71-8383-077fe133e7c4\",\n                \"value\": \"testusersec@demo.com\",\n                \"via\": \"email\",\n                \"created_at\": \"2024-09-18T06:01:14.535135Z\",\n                \"updated_at\": \"2024-09-18T06:01:14.535135Z\"\n            },\n            {\n                \"id\": \"d28078d1-2e7e-49ac-b161-e196d2dd1da0\",\n                \"value\": \"testuuser11@demo.com\",\n                \"via\": \"email\",\n                \"created_at\": \"2024-09-18T06:01:14.535107Z\",\n                \"updated_at\": \"2024-09-18T06:01:14.535107Z\"\n            }\n        ],\n        \"metadata_public\": null,\n        \"metadata_admin\": null,\n        \"created_at\": \"2024-09-18T06:01:13.500963Z\",\n        \"updated_at\": \"2024-09-18T06:01:13.500963Z\",\n        \"organization_id\": null\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Create an Identity",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": {
+								"key": "Authorization",
+								"value": "{{apiKey}}",
+								"in": "header"
+							}
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"schema_id\": \"default\",\n  \"traits\": {\n    \"email\": \"pteam-test2@auth.com\",\n    \"last_name\": \"Test2\",\n    \"first_name\": \"Auth\"\n  },\n  \"credentials\": {\n    \"password\": {\n      \"config\": {\n        \"hashed_password\": \"$2a$10$Pmax39.7ikPpYEi5CF1GFOVlWP7hgL.pQ7IePtp9tJBdLVXhkY85e\"\n      }\n    }\n  },\n  \"verifiable_addresses\": [\n    {\n      \"value\": \"pteam-test2@auth.com\",\n      \"verified\": false,\n      \"via\": \"email\",\n      \"status\": \"pending\"\n    }\n  ],\n  \"recovery_addresses\": [\n        {\n            \"value\": \"pteam-test2@auth.com\",\n            \"via\": \"email\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{kratosAdminUrl}}/admin/identities",
+						"description": "Create an [identity](https://www.ory.sh/docs/kratos/concepts/identity-user-model).\n\nThis endpoint can also be used to [import credentials ](https://www.ory.sh/docs/kratos/manage-identities/import-user-accounts-identities) for instance passwords, social sign in configurations or multifactor methods."
+					},
+					"response": [
+						{
+							"name": "(Structure) - Create Identity",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "<API Key>",
+										"description": "Added as a part of security scheme: apikey"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"schema_id\": \"<string>\",\n  \"traits\": {},\n  \"credentials\": {\n    \"oidc\": {\n      \"config\": {\n        \"config\": {\n          \"hashed_password\": \"<string>\",\n          \"password\": \"<string>\"\n        },\n        \"providers\": [\n          {\n            \"subject\": \"<string>\",\n            \"provider\": \"<string>\"\n          },\n          {\n            \"subject\": \"<string>\",\n            \"provider\": \"<string>\"\n          }\n        ]\n      }\n    },\n    \"password\": {\n      \"config\": {\n        \"hashed_password\": \"<string>\",\n        \"password\": \"<string>\"\n      }\n    }\n  },\n  \"metadata_admin\": {\n    \"description\": \"Store metadata about the user which is only accessible through admin APIs such as `GET /admin/identities/<id>`.\"\n  },\n  \"metadata_public\": {\n    \"description\": \"Store metadata about the identity which the identity itself can see when calling for example the\\nsession endpoint. Do not store sensitive information (e.g. credit score) about the identity in this field.\"\n  },\n  \"recovery_addresses\": [\n    {\n      \"id\": \"<uuid>\",\n      \"value\": \"<string>\",\n      \"via\": \"<string>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    },\n    {\n      \"id\": \"<uuid>\",\n      \"value\": \"<string>\",\n      \"via\": \"<string>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    }\n  ],\n  \"state\": \"inactive\",\n  \"verifiable_addresses\": [\n    {\n      \"value\": \"<string>\",\n      \"verified\": \"<boolean>\",\n      \"via\": \"email\",\n      \"status\": \"<string>\",\n      \"created_at\": \"<dateTime>\",\n      \"id\": \"<uuid>\",\n      \"updated_at\": \"<dateTime>\",\n      \"verified_at\": \"<dateTime>\"\n    },\n    {\n      \"value\": \"<string>\",\n      \"verified\": \"<boolean>\",\n      \"via\": \"email\",\n      \"status\": \"<string>\",\n      \"created_at\": \"<dateTime>\",\n      \"id\": \"<uuid>\",\n      \"updated_at\": \"<dateTime>\",\n      \"verified_at\": \"<dateTime>\"\n    }\n  ]\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:4434/admin/identities"
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": \"<uuid>\",\n  \"schema_id\": \"<string>\",\n  \"schema_url\": \"<string>\",\n  \"traits\": {\n    \"description\": \"Traits represent an identity's traits. The identity is able to create, modify, and delete traits\\nin a self-service manner. The input will always be validated against the JSON Schema defined\\nin `schema_url`.\"\n  },\n  \"created_at\": \"<dateTime>\",\n  \"credentials\": {\n    \"Loremb_\": {\n      \"config\": {},\n      \"created_at\": \"<dateTime>\",\n      \"identifiers\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"type\": \"code_recovery\",\n      \"updated_at\": \"<dateTime>\",\n      \"version\": \"<long>\"\n    }\n  },\n  \"metadata_admin\": {\n    \"description\": \"NullJSONRawMessage represents a json.RawMessage that works well with JSON, SQL, and Swagger and is NULLable-\",\n    \"nullable\": true\n  },\n  \"metadata_public\": {\n    \"description\": \"NullJSONRawMessage represents a json.RawMessage that works well with JSON, SQL, and Swagger and is NULLable-\",\n    \"nullable\": true\n  },\n  \"organization_id\": \"<string>\",\n  \"recovery_addresses\": [\n    {\n      \"id\": \"<uuid>\",\n      \"value\": \"<string>\",\n      \"via\": \"<string>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    },\n    {\n      \"id\": \"<uuid>\",\n      \"value\": \"<string>\",\n      \"via\": \"<string>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    }\n  ],\n  \"state\": \"inactive\",\n  \"state_changed_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"verifiable_addresses\": [\n    {\n      \"value\": \"<string>\",\n      \"verified\": \"<boolean>\",\n      \"via\": \"email\",\n      \"status\": \"<string>\",\n      \"created_at\": \"<dateTime>\",\n      \"id\": \"<uuid>\",\n      \"updated_at\": \"<dateTime>\",\n      \"verified_at\": \"<dateTime>\"\n    },\n    {\n      \"value\": \"<string>\",\n      \"verified\": \"<boolean>\",\n      \"via\": \"sms\",\n      \"status\": \"<string>\",\n      \"created_at\": \"<dateTime>\",\n      \"id\": \"<uuid>\",\n      \"updated_at\": \"<dateTime>\",\n      \"verified_at\": \"<dateTime>\"\n    }\n  ]\n}"
+						},
+						{
+							"name": "(Structure) - errorGeneric",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "<API Key>",
+										"description": "Added as a part of security scheme: apikey"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"schema_id\": \"<string>\",\n  \"traits\": {},\n  \"credentials\": {\n    \"oidc\": {\n      \"config\": {\n        \"config\": {\n          \"hashed_password\": \"<string>\",\n          \"password\": \"<string>\"\n        },\n        \"providers\": [\n          {\n            \"subject\": \"<string>\",\n            \"provider\": \"<string>\"\n          },\n          {\n            \"subject\": \"<string>\",\n            \"provider\": \"<string>\"\n          }\n        ]\n      }\n    },\n    \"password\": {\n      \"config\": {\n        \"hashed_password\": \"<string>\",\n        \"password\": \"<string>\"\n      }\n    }\n  },\n  \"metadata_admin\": {\n    \"description\": \"Store metadata about the user which is only accessible through admin APIs such as `GET /admin/identities/<id>`.\"\n  },\n  \"metadata_public\": {\n    \"description\": \"Store metadata about the identity which the identity itself can see when calling for example the\\nsession endpoint. Do not store sensitive information (e.g. credit score) about the identity in this field.\"\n  },\n  \"recovery_addresses\": [\n    {\n      \"id\": \"<uuid>\",\n      \"value\": \"<string>\",\n      \"via\": \"<string>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    },\n    {\n      \"id\": \"<uuid>\",\n      \"value\": \"<string>\",\n      \"via\": \"<string>\",\n      \"created_at\": \"<dateTime>\",\n      \"updated_at\": \"<dateTime>\"\n    }\n  ],\n  \"state\": \"inactive\",\n  \"verifiable_addresses\": [\n    {\n      \"value\": \"<string>\",\n      \"verified\": \"<boolean>\",\n      \"via\": \"email\",\n      \"status\": \"<string>\",\n      \"created_at\": \"<dateTime>\",\n      \"id\": \"<uuid>\",\n      \"updated_at\": \"<dateTime>\",\n      \"verified_at\": \"<dateTime>\"\n    },\n    {\n      \"value\": \"<string>\",\n      \"verified\": \"<boolean>\",\n      \"via\": \"email\",\n      \"status\": \"<string>\",\n      \"created_at\": \"<dateTime>\",\n      \"id\": \"<uuid>\",\n      \"updated_at\": \"<dateTime>\",\n      \"verified_at\": \"<dateTime>\"\n    }\n  ]\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{kratosAdminUrl}}/admin/identities"
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": {\n    \"message\": \"<string>\",\n    \"code\": \"<long>\",\n    \"debug\": \"<string>\",\n    \"details\": {},\n    \"id\": \"<string>\",\n    \"reason\": \"<string>\",\n    \"request\": \"<string>\",\n    \"status\": \"<string>\"\n  }\n}"
+						},
+						{
+							"name": "Create an Identity",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"schema_id\": \"default\",\n  \"traits\": {\n    \"email\": \"pteam-test2@auth.com\",\n    \"last_name\": \"Test2\",\n    \"first_name\": \"Auth\"\n  },\n  \"credentials\": {\n    \"password\": {\n      \"config\": {\n        \"hashed_password\": \"$2a$10$Pmax39.7ikPpYEi5CF1GFOVlWP7hgL.pQ7IePtp9tJBdLVXhkY85e\"\n      }\n    }\n  },\n  \"verifiable_addresses\": [\n    {\n      \"value\": \"pteam-test2@auth.com\",\n      \"verified\": false,\n      \"via\": \"email\",\n      \"status\": \"pending\"\n    }\n  ],\n  \"recovery_addresses\": [\n        {\n            \"value\": \"pteam-test2@auth.com\",\n            \"via\": \"email\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{kratosAdminUrl}}/admin/identities"
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "private, no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Location",
+									"value": "http://127.0.0.1:4434/identities/e010effe-5213-4c03-90df-8b6c0b86272f"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 25 Sep 2024 08:20:21 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1159"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"e010effe-5213-4c03-90df-8b6c0b86272f\",\n    \"credentials\": {\n        \"code\": {\n            \"type\": \"code\",\n            \"identifiers\": [\n                \"pteam-test2@auth.com\"\n            ],\n            \"version\": 0,\n            \"created_at\": \"0001-01-01T00:00:00Z\",\n            \"updated_at\": \"0001-01-01T00:00:00Z\"\n        },\n        \"password\": {\n            \"type\": \"password\",\n            \"identifiers\": [\n                \"pteam-test2@auth.com\"\n            ],\n            \"version\": 0,\n            \"created_at\": \"0001-01-01T00:00:00Z\",\n            \"updated_at\": \"0001-01-01T00:00:00Z\"\n        }\n    },\n    \"schema_id\": \"default\",\n    \"schema_url\": \"http://127.0.0.1:4433/schemas/ZGVmYXVsdA\",\n    \"state\": \"active\",\n    \"state_changed_at\": \"2024-09-25T08:20:17.188433714Z\",\n    \"traits\": {\n        \"email\": \"pteam-test2@auth.com\",\n        \"last_name\": \"Test2\",\n        \"first_name\": \"Auth\"\n    },\n    \"verifiable_addresses\": [\n        {\n            \"id\": \"957ebfe1-fe7c-406d-9c8f-33534dca9a88\",\n            \"value\": \"pteam-test2@auth.com\",\n            \"verified\": false,\n            \"via\": \"email\",\n            \"status\": \"pending\",\n            \"created_at\": \"2024-09-25T08:20:17.99382Z\",\n            \"updated_at\": \"2024-09-25T08:20:17.99382Z\"\n        }\n    ],\n    \"recovery_addresses\": [\n        {\n            \"id\": \"0aa6318c-cc01-4ae3-9a36-88de098d5bf3\",\n            \"value\": \"pteam-test2@auth.com\",\n            \"via\": \"email\",\n            \"created_at\": \"2024-09-25T08:20:18.533698Z\",\n            \"updated_at\": \"2024-09-25T08:20:18.533698Z\"\n        }\n    ],\n    \"metadata_public\": null,\n    \"created_at\": \"2024-09-25T08:20:17.459369Z\",\n    \"updated_at\": \"2024-09-25T08:20:17.459369Z\",\n    \"organization_id\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "List Identity Schemas",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{kratosAdminUrl}}/schemas",
+							"host": [
+								"{{kratosAdminUrl}}"
+							],
+							"path": [
+								"schemas"
+							],
+							"query": [
+								{
+									"key": "per_page",
+									"value": "250",
+									"description": "Deprecated Items per Page\n\nDEPRECATED: Please use `page_token` instead. This parameter will be removed in the future.\n\nThis is the number of items per page.",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "<long>",
+									"description": "Deprecated Pagination Page\n\nDEPRECATED: Please use `page_token` instead. This parameter will be removed in the future.\n\nThis value is currently an integer, but it is not sequential. The value is not the page number, but a\nreference. The next page can be any number and some numbers might return an empty list.\n\nFor example, page 2 might not follow after page 1. And even if page 3 and 5 exist, but page 4 might not exist.\nThe first page can be retrieved by omitting this parameter. Following page pointers will be returned in the\n`Link` header.",
+									"disabled": true
+								},
+								{
+									"key": "page_size",
+									"value": "250",
+									"description": "Page Size\n\nThis is the number of items per page to return. For details on pagination please head over to the\n[pagination documentation](https://www.ory.sh/docs/ecosystem/api-design#pagination).",
+									"disabled": true
+								},
+								{
+									"key": "page_token",
+									"value": "1",
+									"description": "Next Page Token\n\nThe next page token. For details on pagination please head over to the\n[pagination documentation](https://www.ory.sh/docs/ecosystem/api-design#pagination).",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Returns a list of all identity schemas currently in use."
+					},
+					"response": [
+						{
+							"name": "(Structure) - errorGeneric",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "http://127.0.0.1:4434/schemas?per_page=250&page=<long>&page_size=250&page_token=1",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "4434",
+									"path": [
+										"schemas"
+									],
+									"query": [
+										{
+											"key": "per_page",
+											"value": "250",
+											"description": "Deprecated Items per Page\n\nDEPRECATED: Please use `page_token` instead. This parameter will be removed in the future.\n\nThis is the number of items per page."
+										},
+										{
+											"key": "page",
+											"value": "<long>",
+											"description": "Deprecated Pagination Page\n\nDEPRECATED: Please use `page_token` instead. This parameter will be removed in the future.\n\nThis value is currently an integer, but it is not sequential. The value is not the page number, but a\nreference. The next page can be any number and some numbers might return an empty list.\n\nFor example, page 2 might not follow after page 1. And even if page 3 and 5 exist, but page 4 might not exist.\nThe first page can be retrieved by omitting this parameter. Following page pointers will be returned in the\n`Link` header."
+										},
+										{
+											"key": "page_size",
+											"value": "250",
+											"description": "Page Size\n\nThis is the number of items per page to return. For details on pagination please head over to the\n[pagination documentation](https://www.ory.sh/docs/ecosystem/api-design#pagination)."
+										},
+										{
+											"key": "page_token",
+											"value": "1",
+											"description": "Next Page Token\n\nThe next page token. For details on pagination please head over to the\n[pagination documentation](https://www.ory.sh/docs/ecosystem/api-design#pagination)."
+										}
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": {\n    \"message\": \"<string>\",\n    \"code\": \"<long>\",\n    \"debug\": \"<string>\",\n    \"details\": {},\n    \"id\": \"<string>\",\n    \"reason\": \"<string>\",\n    \"request\": \"<string>\",\n    \"status\": \"<string>\"\n  }\n}"
+						},
+						{
+							"name": "List Identity Schemas",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "http://127.0.0.1:4434/schemas?per_page=250&page=<long>&page_size=250&page_token=1",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "4434",
+									"path": [
+										"schemas"
+									],
+									"query": [
+										{
+											"key": "per_page",
+											"value": "250",
+											"description": "Deprecated Items per Page\n\nDEPRECATED: Please use `page_token` instead. This parameter will be removed in the future.\n\nThis is the number of items per page."
+										},
+										{
+											"key": "page",
+											"value": "<long>",
+											"description": "Deprecated Pagination Page\n\nDEPRECATED: Please use `page_token` instead. This parameter will be removed in the future.\n\nThis value is currently an integer, but it is not sequential. The value is not the page number, but a\nreference. The next page can be any number and some numbers might return an empty list.\n\nFor example, page 2 might not follow after page 1. And even if page 3 and 5 exist, but page 4 might not exist.\nThe first page can be retrieved by omitting this parameter. Following page pointers will be returned in the\n`Link` header."
+										},
+										{
+											"key": "page_size",
+											"value": "250",
+											"description": "Page Size\n\nThis is the number of items per page to return. For details on pagination please head over to the\n[pagination documentation](https://www.ory.sh/docs/ecosystem/api-design#pagination)."
+										},
+										{
+											"key": "page_token",
+											"value": "1",
+											"description": "Next Page Token\n\nThe next page token. For details on pagination please head over to the\n[pagination documentation](https://www.ory.sh/docs/ecosystem/api-design#pagination)."
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "private, no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Link",
+									"value": "</schemas?page=0&page_size=1&page_token=eyJvZmZzZXQiOiIwIiwidiI6Mn0&per_page=1>; rel=\"first\""
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Cookie"
+								},
+								{
+									"key": "X-Total-Count",
+									"value": "1"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 25 Sep 2024 08:17:26 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "848"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": \"default\",\n        \"schema\": {\n            \"$id\": \"https://schemas.ory.sh/presets/kratos/quickstart/email-password/identity.schema.json\",\n            \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n            \"title\": \"Person\",\n            \"type\": \"object\",\n            \"properties\": {\n                \"traits\": {\n                    \"type\": \"object\",\n                    \"properties\": {\n                        \"email\": {\n                            \"type\": \"string\",\n                            \"format\": \"email\",\n                            \"title\": \"Primary Email\",\n                            \"minLength\": 6,\n                            \"ory.sh/kratos\": {\n                                \"credentials\": {\n                                    \"password\": {\n                                        \"identifier\": true\n                                    },\n                                    \"code\": {\n                                        \"identifier\": true,\n                                        \"via\": \"email\"\n                                    }\n                                },\n                                \"verification\": {\n                                    \"via\": \"email\"\n                                },\n                                \"recovery\": {\n                                    \"via\": \"email\"\n                                }\n                            }\n                        },\n                        \"email_secondary\": {\n                            \"format\": \"email\",\n                            \"ory.sh/kratos\": {\n                                \"recovery\": {\n                                    \"via\": \"email\"\n                                }\n                            },\n                            \"title\": \"Secondary Email\",\n                            \"type\": \"string\",\n                            \"maxLength\": 320\n                        },\n                        \"first_name\": {\n                            \"type\": \"string\",\n                            \"title\": \"First name\"\n                        },\n                        \"last_name\": {\n                            \"type\": \"string\",\n                            \"title\": \"Last Name\"\n                        },\n                        \"hd\": {\n                            \"type\": \"string\",\n                            \"title\": \"Company Name\"\n                        }\n                    },\n                    \"required\": [\n                        \"email\"\n                    ],\n                    \"additionalProperties\": false\n                }\n            }\n        }\n    }\n]"
+						}
+					]
+				}
+			],
+			"description": "API Endpoints that are required to Manage Identities Across Kratos.\n\nReference - [https://www.ory.sh/docs/kratos/reference/api#tag/identity](https://www.ory.sh/docs/kratos/reference/api#tag/identity)"
+		},
+		{
+			"name": "Ory Hydra Client API",
+			"item": [
+				{
+					"name": "Create OAuth 2.0 Client",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"client_name\": \"p-team\",\n  \"redirect_uris\": [\n    \"http://127.0.0.1:8080/callback\",\n    \"http://127.0.0.1:8080/logout-callback\",\n    \"http://127.0.0.1:8080/logout-middleware\"\n  ],\n  \"grant_types\": [\n    \"authorization_code\",\n    \"refresh_token\"\n  ],\n  \"response_types\": [\n    \"code\",\n    \"id_token\"\n  ],\n  \"scope\": \"openid offline profile\",\n  \"post_logout_redirect_uris\": [\n    \"http://127.0.0.1:8080/logout-callback\"\n  ]\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{hydraAdminUrl}}/admin/clients",
+						"description": "Create a new OAuth 2.0 client.\n\nIf you pass `client_secret` the secret is used, otherwise a random secret is generated. The secret is echoed in the response. It is not possible to retrieve it later on."
+					},
+					"response": [
+						{
+							"name": "(Structure) - Create OAuth 2.0 Client",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"access_token_strategy\": \"<string>\",\n  \"allowed_cors_origins\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"audience\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"authorization_code_grant_access_token_lifespan\": \"913m008955334ns69916h731us3000483h489069452s73164117372ms07735690ms9338264s\",\n  \"authorization_code_grant_id_token_lifespan\": \"82856649991ms87s80h0248h\",\n  \"authorization_code_grant_refresh_token_lifespan\": \"21m0364192us834304h\",\n  \"backchannel_logout_session_required\": \"<boolean>\",\n  \"backchannel_logout_uri\": \"<string>\",\n  \"client_credentials_grant_access_token_lifespan\": \"9m69068s637016493h45749021212h81ms56385943ms\",\n  \"client_id\": \"<string>\",\n  \"client_name\": \"<string>\",\n  \"client_secret\": \"<string>\",\n  \"client_secret_expires_at\": \"<long>\",\n  \"client_uri\": \"<string>\",\n  \"contacts\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"created_at\": \"<dateTime>\",\n  \"frontchannel_logout_session_required\": \"<boolean>\",\n  \"frontchannel_logout_uri\": \"<string>\",\n  \"grant_types\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"implicit_grant_access_token_lifespan\": \"7258805558m781878us\",\n  \"implicit_grant_id_token_lifespan\": \"4us524099s1598387h98526310s10458s787301s97631ms118054ns25066255m5740s\",\n  \"jwks\": {\n    \"description\": \"OAuth 2.0 Client JSON Web Key Set\\n\\nClient's JSON Web Key Set [JWK] document, passed by value. The semantics of the jwks parameter are the same as\\nthe jwks_uri parameter, other than that the JWK Set is passed by value, rather than by reference. This parameter\\nis intended only to be used by Clients that, for some reason, are unable to use the jwks_uri parameter, for\\ninstance, by native applications that might not have a location to host the contents of the JWK Set. If a Client\\ncan use jwks_uri, it MUST NOT use jwks. One significant downside of jwks is that it does not enable key rotation\\n(which jwks_uri does, as described in Section 10 of OpenID Connect Core 1.0 [OpenID.Core]). The jwks_uri and jwks\\nparameters MUST NOT be used together.\"\n  },\n  \"jwks_uri\": \"<string>\",\n  \"jwt_bearer_grant_access_token_lifespan\": \"429686311s63390408876m467820m94433ms\",\n  \"logo_uri\": \"<string>\",\n  \"metadata\": {\n    \"title\": \"JSONRawMessage represents a json.RawMessage that works well with JSON, SQL, and Swagger.\"\n  },\n  \"owner\": \"<string>\",\n  \"policy_uri\": \"<string>\",\n  \"post_logout_redirect_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"redirect_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"refresh_token_grant_access_token_lifespan\": \"237s81328110h89528ns46000432us84005893609m93057153271h842730us\",\n  \"refresh_token_grant_id_token_lifespan\": \"710572s00571810723s\",\n  \"refresh_token_grant_refresh_token_lifespan\": \"0933m6s8722us5us68693527ms5521720756m22619s7005ns\",\n  \"registration_access_token\": \"<string>\",\n  \"registration_client_uri\": \"<string>\",\n  \"request_object_signing_alg\": \"<string>\",\n  \"request_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"response_types\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"scope\": \"<string>\",\n  \"sector_identifier_uri\": \"<string>\",\n  \"skip_consent\": \"<boolean>\",\n  \"subject_type\": \"<string>\",\n  \"token_endpoint_auth_method\": \"client_secret_basic\",\n  \"token_endpoint_auth_signing_alg\": \"<string>\",\n  \"tos_uri\": \"<string>\",\n  \"updated_at\": \"<dateTime>\",\n  \"userinfo_signed_response_alg\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:4445/admin/clients"
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"access_token_strategy\": \"<string>\",\n  \"allowed_cors_origins\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"audience\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"authorization_code_grant_access_token_lifespan\": \"913m008955334ns69916h731us3000483h489069452s73164117372ms07735690ms9338264s\",\n  \"authorization_code_grant_id_token_lifespan\": \"82856649991ms87s80h0248h\",\n  \"authorization_code_grant_refresh_token_lifespan\": \"21m0364192us834304h\",\n  \"backchannel_logout_session_required\": \"<boolean>\",\n  \"backchannel_logout_uri\": \"<string>\",\n  \"client_credentials_grant_access_token_lifespan\": \"9m69068s637016493h45749021212h81ms56385943ms\",\n  \"client_id\": \"<string>\",\n  \"client_name\": \"<string>\",\n  \"client_secret\": \"<string>\",\n  \"client_secret_expires_at\": \"<long>\",\n  \"client_uri\": \"<string>\",\n  \"contacts\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"created_at\": \"<dateTime>\",\n  \"frontchannel_logout_session_required\": \"<boolean>\",\n  \"frontchannel_logout_uri\": \"<string>\",\n  \"grant_types\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"implicit_grant_access_token_lifespan\": \"7258805558m781878us\",\n  \"implicit_grant_id_token_lifespan\": \"4us524099s1598387h98526310s10458s787301s97631ms118054ns25066255m5740s\",\n  \"jwks\": {\n    \"description\": \"OAuth 2.0 Client JSON Web Key Set\\n\\nClient's JSON Web Key Set [JWK] document, passed by value. The semantics of the jwks parameter are the same as\\nthe jwks_uri parameter, other than that the JWK Set is passed by value, rather than by reference. This parameter\\nis intended only to be used by Clients that, for some reason, are unable to use the jwks_uri parameter, for\\ninstance, by native applications that might not have a location to host the contents of the JWK Set. If a Client\\ncan use jwks_uri, it MUST NOT use jwks. One significant downside of jwks is that it does not enable key rotation\\n(which jwks_uri does, as described in Section 10 of OpenID Connect Core 1.0 [OpenID.Core]). The jwks_uri and jwks\\nparameters MUST NOT be used together.\"\n  },\n  \"jwks_uri\": \"<string>\",\n  \"jwt_bearer_grant_access_token_lifespan\": \"429686311s63390408876m467820m94433ms\",\n  \"logo_uri\": \"<string>\",\n  \"metadata\": {\n    \"title\": \"JSONRawMessage represents a json.RawMessage that works well with JSON, SQL, and Swagger.\"\n  },\n  \"owner\": \"<string>\",\n  \"policy_uri\": \"<string>\",\n  \"post_logout_redirect_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"redirect_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"refresh_token_grant_access_token_lifespan\": \"237s81328110h89528ns46000432us84005893609m93057153271h842730us\",\n  \"refresh_token_grant_id_token_lifespan\": \"710572s00571810723s\",\n  \"refresh_token_grant_refresh_token_lifespan\": \"0933m6s8722us5us68693527ms5521720756m22619s7005ns\",\n  \"registration_access_token\": \"<string>\",\n  \"registration_client_uri\": \"<string>\",\n  \"request_object_signing_alg\": \"<string>\",\n  \"request_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"response_types\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"scope\": \"<string>\",\n  \"sector_identifier_uri\": \"<string>\",\n  \"skip_consent\": \"<boolean>\",\n  \"subject_type\": \"<string>\",\n  \"token_endpoint_auth_method\": \"client_secret_basic\",\n  \"token_endpoint_auth_signing_alg\": \"<string>\",\n  \"tos_uri\": \"<string>\",\n  \"updated_at\": \"<dateTime>\",\n  \"userinfo_signed_response_alg\": \"<string>\"\n}"
+						},
+						{
+							"name": "(Structure) - Bad Request Error Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"access_token_strategy\": \"<string>\",\n  \"allowed_cors_origins\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"audience\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"authorization_code_grant_access_token_lifespan\": \"913m008955334ns69916h731us3000483h489069452s73164117372ms07735690ms9338264s\",\n  \"authorization_code_grant_id_token_lifespan\": \"82856649991ms87s80h0248h\",\n  \"authorization_code_grant_refresh_token_lifespan\": \"21m0364192us834304h\",\n  \"backchannel_logout_session_required\": \"<boolean>\",\n  \"backchannel_logout_uri\": \"<string>\",\n  \"client_credentials_grant_access_token_lifespan\": \"9m69068s637016493h45749021212h81ms56385943ms\",\n  \"client_id\": \"<string>\",\n  \"client_name\": \"<string>\",\n  \"client_secret\": \"<string>\",\n  \"client_secret_expires_at\": \"<long>\",\n  \"client_uri\": \"<string>\",\n  \"contacts\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"created_at\": \"<dateTime>\",\n  \"frontchannel_logout_session_required\": \"<boolean>\",\n  \"frontchannel_logout_uri\": \"<string>\",\n  \"grant_types\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"implicit_grant_access_token_lifespan\": \"7258805558m781878us\",\n  \"implicit_grant_id_token_lifespan\": \"4us524099s1598387h98526310s10458s787301s97631ms118054ns25066255m5740s\",\n  \"jwks\": {\n    \"description\": \"OAuth 2.0 Client JSON Web Key Set\\n\\nClient's JSON Web Key Set [JWK] document, passed by value. The semantics of the jwks parameter are the same as\\nthe jwks_uri parameter, other than that the JWK Set is passed by value, rather than by reference. This parameter\\nis intended only to be used by Clients that, for some reason, are unable to use the jwks_uri parameter, for\\ninstance, by native applications that might not have a location to host the contents of the JWK Set. If a Client\\ncan use jwks_uri, it MUST NOT use jwks. One significant downside of jwks is that it does not enable key rotation\\n(which jwks_uri does, as described in Section 10 of OpenID Connect Core 1.0 [OpenID.Core]). The jwks_uri and jwks\\nparameters MUST NOT be used together.\"\n  },\n  \"jwks_uri\": \"<string>\",\n  \"jwt_bearer_grant_access_token_lifespan\": \"429686311s63390408876m467820m94433ms\",\n  \"logo_uri\": \"<string>\",\n  \"metadata\": {\n    \"title\": \"JSONRawMessage represents a json.RawMessage that works well with JSON, SQL, and Swagger.\"\n  },\n  \"owner\": \"<string>\",\n  \"policy_uri\": \"<string>\",\n  \"post_logout_redirect_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"redirect_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"refresh_token_grant_access_token_lifespan\": \"237s81328110h89528ns46000432us84005893609m93057153271h842730us\",\n  \"refresh_token_grant_id_token_lifespan\": \"710572s00571810723s\",\n  \"refresh_token_grant_refresh_token_lifespan\": \"0933m6s8722us5us68693527ms5521720756m22619s7005ns\",\n  \"registration_access_token\": \"<string>\",\n  \"registration_client_uri\": \"<string>\",\n  \"request_object_signing_alg\": \"<string>\",\n  \"request_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"response_types\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"scope\": \"<string>\",\n  \"sector_identifier_uri\": \"<string>\",\n  \"skip_consent\": \"<boolean>\",\n  \"subject_type\": \"<string>\",\n  \"token_endpoint_auth_method\": \"client_secret_basic\",\n  \"token_endpoint_auth_signing_alg\": \"<string>\",\n  \"tos_uri\": \"<string>\",\n  \"updated_at\": \"<dateTime>\",\n  \"userinfo_signed_response_alg\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{hydraAdminUrl}}/admin/clients"
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"<string>\",\n  \"error_debug\": \"<string>\",\n  \"error_description\": \"<string>\",\n  \"error_hint\": \"<string>\",\n  \"status_code\": \"<long>\"\n}"
+						},
+						{
+							"name": "(Structure) - Default Error Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"access_token_strategy\": \"<string>\",\n  \"allowed_cors_origins\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"audience\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"authorization_code_grant_access_token_lifespan\": \"913m008955334ns69916h731us3000483h489069452s73164117372ms07735690ms9338264s\",\n  \"authorization_code_grant_id_token_lifespan\": \"82856649991ms87s80h0248h\",\n  \"authorization_code_grant_refresh_token_lifespan\": \"21m0364192us834304h\",\n  \"backchannel_logout_session_required\": \"<boolean>\",\n  \"backchannel_logout_uri\": \"<string>\",\n  \"client_credentials_grant_access_token_lifespan\": \"9m69068s637016493h45749021212h81ms56385943ms\",\n  \"client_id\": \"<string>\",\n  \"client_name\": \"<string>\",\n  \"client_secret\": \"<string>\",\n  \"client_secret_expires_at\": \"<long>\",\n  \"client_uri\": \"<string>\",\n  \"contacts\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"created_at\": \"<dateTime>\",\n  \"frontchannel_logout_session_required\": \"<boolean>\",\n  \"frontchannel_logout_uri\": \"<string>\",\n  \"grant_types\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"implicit_grant_access_token_lifespan\": \"7258805558m781878us\",\n  \"implicit_grant_id_token_lifespan\": \"4us524099s1598387h98526310s10458s787301s97631ms118054ns25066255m5740s\",\n  \"jwks\": {\n    \"description\": \"OAuth 2.0 Client JSON Web Key Set\\n\\nClient's JSON Web Key Set [JWK] document, passed by value. The semantics of the jwks parameter are the same as\\nthe jwks_uri parameter, other than that the JWK Set is passed by value, rather than by reference. This parameter\\nis intended only to be used by Clients that, for some reason, are unable to use the jwks_uri parameter, for\\ninstance, by native applications that might not have a location to host the contents of the JWK Set. If a Client\\ncan use jwks_uri, it MUST NOT use jwks. One significant downside of jwks is that it does not enable key rotation\\n(which jwks_uri does, as described in Section 10 of OpenID Connect Core 1.0 [OpenID.Core]). The jwks_uri and jwks\\nparameters MUST NOT be used together.\"\n  },\n  \"jwks_uri\": \"<string>\",\n  \"jwt_bearer_grant_access_token_lifespan\": \"429686311s63390408876m467820m94433ms\",\n  \"logo_uri\": \"<string>\",\n  \"metadata\": {\n    \"title\": \"JSONRawMessage represents a json.RawMessage that works well with JSON, SQL, and Swagger.\"\n  },\n  \"owner\": \"<string>\",\n  \"policy_uri\": \"<string>\",\n  \"post_logout_redirect_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"redirect_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"refresh_token_grant_access_token_lifespan\": \"237s81328110h89528ns46000432us84005893609m93057153271h842730us\",\n  \"refresh_token_grant_id_token_lifespan\": \"710572s00571810723s\",\n  \"refresh_token_grant_refresh_token_lifespan\": \"0933m6s8722us5us68693527ms5521720756m22619s7005ns\",\n  \"registration_access_token\": \"<string>\",\n  \"registration_client_uri\": \"<string>\",\n  \"request_object_signing_alg\": \"<string>\",\n  \"request_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"response_types\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"scope\": \"<string>\",\n  \"sector_identifier_uri\": \"<string>\",\n  \"skip_consent\": \"<boolean>\",\n  \"subject_type\": \"<string>\",\n  \"token_endpoint_auth_method\": \"client_secret_basic\",\n  \"token_endpoint_auth_signing_alg\": \"<string>\",\n  \"tos_uri\": \"<string>\",\n  \"updated_at\": \"<dateTime>\",\n  \"userinfo_signed_response_alg\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{hydraAdminUrl}}/admin/clients"
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"<string>\",\n  \"error_debug\": \"<string>\",\n  \"error_description\": \"<string>\",\n  \"error_hint\": \"<string>\",\n  \"status_code\": \"<long>\"\n}"
+						},
+						{
+							"name": "Create OAuth 2.0 Client",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"client_name\": \"p-team\",\n  \"redirect_uris\": [\n    \"http://127.0.0.1:8080/callback\",\n    \"http://127.0.0.1:8080/logout-callback\",\n    \"http://127.0.0.1:8080/logout-middleware\"\n  ],\n  \"grant_types\": [\n    \"authorization_code\",\n    \"refresh_token\"\n  ],\n  \"response_types\": [\n    \"code\",\n    \"id_token\"\n  ],\n  \"scope\": \"openid offline profile\",\n  \"post_logout_redirect_uris\": [\n    \"http://127.0.0.1:8080/logout-callback\"\n  ]\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{hydraAdminUrl}}/admin/clients"
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "private, no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Location",
+									"value": "/admin/clients/4393cc24-c581-4817-ac22-c236265a044d"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 25 Sep 2024 08:20:42 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1545"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"client_id\": \"4393cc24-c581-4817-ac22-c236265a044d\",\n    \"client_name\": \"p-team\",\n    \"client_secret\": \"bhUWtefSqq1hV4_HvGLxM8gIVZ\",\n    \"redirect_uris\": [\n        \"http://127.0.0.1:8080/callback\",\n        \"http://127.0.0.1:8080/logout-callback\",\n        \"http://127.0.0.1:8080/logout-middleware\"\n    ],\n    \"grant_types\": [\n        \"authorization_code\",\n        \"refresh_token\"\n    ],\n    \"response_types\": [\n        \"code\",\n        \"id_token\"\n    ],\n    \"scope\": \"openid offline profile\",\n    \"audience\": [],\n    \"owner\": \"\",\n    \"policy_uri\": \"\",\n    \"allowed_cors_origins\": [],\n    \"tos_uri\": \"\",\n    \"client_uri\": \"\",\n    \"logo_uri\": \"\",\n    \"contacts\": null,\n    \"client_secret_expires_at\": 0,\n    \"subject_type\": \"public\",\n    \"jwks\": {},\n    \"token_endpoint_auth_method\": \"client_secret_basic\",\n    \"userinfo_signed_response_alg\": \"none\",\n    \"created_at\": \"2024-09-25T08:20:42Z\",\n    \"updated_at\": \"2024-09-25T08:20:42.290085Z\",\n    \"post_logout_redirect_uris\": [\n        \"http://127.0.0.1:8080/logout-callback\"\n    ],\n    \"metadata\": {},\n    \"registration_access_token\": \"ory_at_g4NDjQoQwfWd2bfW9Y3JYhlVanGxKTmdORYtCX6-rlA.2zDIHR8u_WZdmYuH6JztQ1IY8rYikSwFtfmlq_hLumU\",\n    \"registration_client_uri\": \"http://127.0.0.1:4444/oauth2/register/\",\n    \"skip_consent\": false,\n    \"skip_logout_consent\": null,\n    \"authorization_code_grant_access_token_lifespan\": null,\n    \"authorization_code_grant_id_token_lifespan\": null,\n    \"authorization_code_grant_refresh_token_lifespan\": null,\n    \"client_credentials_grant_access_token_lifespan\": null,\n    \"implicit_grant_access_token_lifespan\": null,\n    \"implicit_grant_id_token_lifespan\": null,\n    \"jwt_bearer_grant_access_token_lifespan\": null,\n    \"refresh_token_grant_id_token_lifespan\": null,\n    \"refresh_token_grant_access_token_lifespan\": null,\n    \"refresh_token_grant_refresh_token_lifespan\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "Patch OAuth 2.0 Client by ID",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"op\": \"add\",\n        \"path\": \"/post_logout_redirect_uris\",\n        \"value\": [\n            \"http://127.0.0.1:8080/logout-callback\"\n        ]\n    }\n]",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hydraAdminUrl}}/admin/clients/:id",
+							"host": [
+								"{{hydraAdminUrl}}"
+							],
+							"path": [
+								"admin",
+								"clients",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "",
+									"description": "The id of the OAuth 2.0 Client."
+								}
+							]
+						},
+						"description": "Patch an existing OAuth 2.0 Client using JSON Patch.\n\nIf you pass `client_secret,` the secret will be updated and returned via the API. This is the  \nonly time you will be able to retrieve the client secret, so write it down and keep it safe.\n\nOAuth 2.0 clients are used to perform OAuth 2.0 and OpenID Connect flows. Usually, OAuth 2.0 clients are generated for applications which want to consume your OAuth 2.0 or OpenID Connect capabilities."
+					},
+					"response": [
+						{
+							"name": "(Structure) - Patch OAuth 2.0 Client By ID",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n  {\n    \"op\": \"<string>\",\n    \"path\": \"<string>\",\n    \"from\": \"<string>\",\n    \"value\": {\n      \"description\": \"The value to be used within the operations.\\n\\nLearn more [about JSON Pointers](https://datatracker.ietf.org/doc/html/rfc6901#section-5).\",\n      \"example\": \"foobar\"\n    }\n  },\n  {\n    \"op\": \"<string>\",\n    \"path\": \"<string>\",\n    \"from\": \"<string>\",\n    \"value\": {\n      \"description\": \"The value to be used within the operations.\\n\\nLearn more [about JSON Pointers](https://datatracker.ietf.org/doc/html/rfc6901#section-5).\",\n      \"example\": \"foobar\"\n    }\n  }\n]",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:4445/admin/clients/:id",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "4445",
+									"path": [
+										"admin",
+										"clients",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"access_token_strategy\": \"<string>\",\n  \"allowed_cors_origins\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"audience\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"authorization_code_grant_access_token_lifespan\": \"913m008955334ns69916h731us3000483h489069452s73164117372ms07735690ms9338264s\",\n  \"authorization_code_grant_id_token_lifespan\": \"82856649991ms87s80h0248h\",\n  \"authorization_code_grant_refresh_token_lifespan\": \"21m0364192us834304h\",\n  \"backchannel_logout_session_required\": \"<boolean>\",\n  \"backchannel_logout_uri\": \"<string>\",\n  \"client_credentials_grant_access_token_lifespan\": \"9m69068s637016493h45749021212h81ms56385943ms\",\n  \"client_id\": \"<string>\",\n  \"client_name\": \"<string>\",\n  \"client_secret\": \"<string>\",\n  \"client_secret_expires_at\": \"<long>\",\n  \"client_uri\": \"<string>\",\n  \"contacts\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"created_at\": \"<dateTime>\",\n  \"frontchannel_logout_session_required\": \"<boolean>\",\n  \"frontchannel_logout_uri\": \"<string>\",\n  \"grant_types\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"implicit_grant_access_token_lifespan\": \"7258805558m781878us\",\n  \"implicit_grant_id_token_lifespan\": \"4us524099s1598387h98526310s10458s787301s97631ms118054ns25066255m5740s\",\n  \"jwks\": {\n    \"description\": \"OAuth 2.0 Client JSON Web Key Set\\n\\nClient's JSON Web Key Set [JWK] document, passed by value. The semantics of the jwks parameter are the same as\\nthe jwks_uri parameter, other than that the JWK Set is passed by value, rather than by reference. This parameter\\nis intended only to be used by Clients that, for some reason, are unable to use the jwks_uri parameter, for\\ninstance, by native applications that might not have a location to host the contents of the JWK Set. If a Client\\ncan use jwks_uri, it MUST NOT use jwks. One significant downside of jwks is that it does not enable key rotation\\n(which jwks_uri does, as described in Section 10 of OpenID Connect Core 1.0 [OpenID.Core]). The jwks_uri and jwks\\nparameters MUST NOT be used together.\"\n  },\n  \"jwks_uri\": \"<string>\",\n  \"jwt_bearer_grant_access_token_lifespan\": \"429686311s63390408876m467820m94433ms\",\n  \"logo_uri\": \"<string>\",\n  \"metadata\": {\n    \"title\": \"JSONRawMessage represents a json.RawMessage that works well with JSON, SQL, and Swagger.\"\n  },\n  \"owner\": \"<string>\",\n  \"policy_uri\": \"<string>\",\n  \"post_logout_redirect_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"redirect_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"refresh_token_grant_access_token_lifespan\": \"237s81328110h89528ns46000432us84005893609m93057153271h842730us\",\n  \"refresh_token_grant_id_token_lifespan\": \"710572s00571810723s\",\n  \"refresh_token_grant_refresh_token_lifespan\": \"0933m6s8722us5us68693527ms5521720756m22619s7005ns\",\n  \"registration_access_token\": \"<string>\",\n  \"registration_client_uri\": \"<string>\",\n  \"request_object_signing_alg\": \"<string>\",\n  \"request_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"response_types\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"scope\": \"<string>\",\n  \"sector_identifier_uri\": \"<string>\",\n  \"skip_consent\": \"<boolean>\",\n  \"subject_type\": \"<string>\",\n  \"token_endpoint_auth_method\": \"client_secret_basic\",\n  \"token_endpoint_auth_signing_alg\": \"<string>\",\n  \"tos_uri\": \"<string>\",\n  \"updated_at\": \"<dateTime>\",\n  \"userinfo_signed_response_alg\": \"<string>\"\n}"
+						},
+						{
+							"name": "(Structure) - Not Found Error Response",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n  {\n    \"op\": \"<string>\",\n    \"path\": \"<string>\",\n    \"from\": \"<string>\",\n    \"value\": {\n      \"description\": \"The value to be used within the operations.\\n\\nLearn more [about JSON Pointers](https://datatracker.ietf.org/doc/html/rfc6901#section-5).\",\n      \"example\": \"foobar\"\n    }\n  },\n  {\n    \"op\": \"<string>\",\n    \"path\": \"<string>\",\n    \"from\": \"<string>\",\n    \"value\": {\n      \"description\": \"The value to be used within the operations.\\n\\nLearn more [about JSON Pointers](https://datatracker.ietf.org/doc/html/rfc6901#section-5).\",\n      \"example\": \"foobar\"\n    }\n  }\n]",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{hydraAdminUrl}}/admin/clients/:id",
+									"host": [
+										"{{hydraAdminUrl}}"
+									],
+									"path": [
+										"admin",
+										"clients",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"<string>\",\n  \"error_debug\": \"<string>\",\n  \"error_description\": \"<string>\",\n  \"error_hint\": \"<string>\",\n  \"status_code\": \"<long>\"\n}"
+						},
+						{
+							"name": "(Structure) - Default Error Response",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n  {\n    \"op\": \"<string>\",\n    \"path\": \"<string>\",\n    \"from\": \"<string>\",\n    \"value\": {\n      \"description\": \"The value to be used within the operations.\\n\\nLearn more [about JSON Pointers](https://datatracker.ietf.org/doc/html/rfc6901#section-5).\",\n      \"example\": \"foobar\"\n    }\n  },\n  {\n    \"op\": \"<string>\",\n    \"path\": \"<string>\",\n    \"from\": \"<string>\",\n    \"value\": {\n      \"description\": \"The value to be used within the operations.\\n\\nLearn more [about JSON Pointers](https://datatracker.ietf.org/doc/html/rfc6901#section-5).\",\n      \"example\": \"foobar\"\n    }\n  }\n]",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{hydraAdminUrl}}/admin/clients/:id",
+									"host": [
+										"{{hydraAdminUrl}}"
+									],
+									"path": [
+										"admin",
+										"clients",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"<string>\",\n  \"error_debug\": \"<string>\",\n  \"error_description\": \"<string>\",\n  \"error_hint\": \"<string>\",\n  \"status_code\": \"<long>\"\n}"
+						},
+						{
+							"name": "Patch OAuth 2.0 Client by ID",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n    {\n        \"op\": \"add\",\n        \"path\": \"/post_logout_redirect_uris\",\n        \"value\": [\n            \"http://127.0.0.1:8080/logout-callback\"\n        ]\n    }\n]",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": "{{hydraAdminUrl}}/admin/clients/{{client_id}}"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "private, no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 25 Sep 2024 08:27:39 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1306"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"client_id\": \"4393cc24-c581-4817-ac22-c236265a044d\",\n    \"client_name\": \"p-team\",\n    \"redirect_uris\": [\n        \"http://127.0.0.1:8080/callback\",\n        \"http://127.0.0.1:8080/logout-callback\",\n        \"http://127.0.0.1:8080/logout-middleware\"\n    ],\n    \"grant_types\": [\n        \"authorization_code\",\n        \"refresh_token\"\n    ],\n    \"response_types\": [\n        \"code\",\n        \"id_token\"\n    ],\n    \"scope\": \"openid offline profile\",\n    \"audience\": [],\n    \"owner\": \"\",\n    \"policy_uri\": \"\",\n    \"allowed_cors_origins\": [],\n    \"tos_uri\": \"\",\n    \"client_uri\": \"\",\n    \"logo_uri\": \"\",\n    \"contacts\": [],\n    \"client_secret_expires_at\": 0,\n    \"subject_type\": \"public\",\n    \"jwks\": {},\n    \"token_endpoint_auth_method\": \"client_secret_basic\",\n    \"userinfo_signed_response_alg\": \"none\",\n    \"created_at\": \"2024-09-25T08:20:42Z\",\n    \"updated_at\": \"2024-09-25T08:27:38.641563Z\",\n    \"post_logout_redirect_uris\": [\n        \"http://127.0.0.1:8080/logout-callback\"\n    ],\n    \"metadata\": {},\n    \"skip_consent\": false,\n    \"skip_logout_consent\": null,\n    \"authorization_code_grant_access_token_lifespan\": null,\n    \"authorization_code_grant_id_token_lifespan\": null,\n    \"authorization_code_grant_refresh_token_lifespan\": null,\n    \"client_credentials_grant_access_token_lifespan\": null,\n    \"implicit_grant_access_token_lifespan\": null,\n    \"implicit_grant_id_token_lifespan\": null,\n    \"jwt_bearer_grant_access_token_lifespan\": null,\n    \"refresh_token_grant_id_token_lifespan\": null,\n    \"refresh_token_grant_access_token_lifespan\": null,\n    \"refresh_token_grant_refresh_token_lifespan\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "Get an OAuth 2.0 Client by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{hydraAdminUrl}}/admin/clients/:id",
+							"host": [
+								"{{hydraAdminUrl}}"
+							],
+							"path": [
+								"admin",
+								"clients",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "",
+									"description": "The id of the OAuth 2.0 Client."
+								}
+							]
+						},
+						"description": "Get an OAuth 2.0 client by its ID. This endpoint never returns the client secret.\n\nOAuth 2.0 clients are used to perform OAuth 2.0 and OpenID Connect flows. Usually, OAuth 2.0 clients are generated for applications which want to consume your OAuth 2.0 or OpenID Connect capabilities."
+					},
+					"response": [
+						{
+							"name": "(Structure) - Get OAuth 2.0 Client",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{hydraAdminUrl}}/admin/clients/:id",
+									"host": [
+										"{{hydraAdminUrl}}"
+									],
+									"path": [
+										"admin",
+										"clients",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"access_token_strategy\": \"<string>\",\n  \"allowed_cors_origins\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"audience\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"authorization_code_grant_access_token_lifespan\": \"913m008955334ns69916h731us3000483h489069452s73164117372ms07735690ms9338264s\",\n  \"authorization_code_grant_id_token_lifespan\": \"82856649991ms87s80h0248h\",\n  \"authorization_code_grant_refresh_token_lifespan\": \"21m0364192us834304h\",\n  \"backchannel_logout_session_required\": \"<boolean>\",\n  \"backchannel_logout_uri\": \"<string>\",\n  \"client_credentials_grant_access_token_lifespan\": \"9m69068s637016493h45749021212h81ms56385943ms\",\n  \"client_id\": \"<string>\",\n  \"client_name\": \"<string>\",\n  \"client_secret\": \"<string>\",\n  \"client_secret_expires_at\": \"<long>\",\n  \"client_uri\": \"<string>\",\n  \"contacts\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"created_at\": \"<dateTime>\",\n  \"frontchannel_logout_session_required\": \"<boolean>\",\n  \"frontchannel_logout_uri\": \"<string>\",\n  \"grant_types\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"implicit_grant_access_token_lifespan\": \"7258805558m781878us\",\n  \"implicit_grant_id_token_lifespan\": \"4us524099s1598387h98526310s10458s787301s97631ms118054ns25066255m5740s\",\n  \"jwks\": {\n    \"description\": \"OAuth 2.0 Client JSON Web Key Set\\n\\nClient's JSON Web Key Set [JWK] document, passed by value. The semantics of the jwks parameter are the same as\\nthe jwks_uri parameter, other than that the JWK Set is passed by value, rather than by reference. This parameter\\nis intended only to be used by Clients that, for some reason, are unable to use the jwks_uri parameter, for\\ninstance, by native applications that might not have a location to host the contents of the JWK Set. If a Client\\ncan use jwks_uri, it MUST NOT use jwks. One significant downside of jwks is that it does not enable key rotation\\n(which jwks_uri does, as described in Section 10 of OpenID Connect Core 1.0 [OpenID.Core]). The jwks_uri and jwks\\nparameters MUST NOT be used together.\"\n  },\n  \"jwks_uri\": \"<string>\",\n  \"jwt_bearer_grant_access_token_lifespan\": \"429686311s63390408876m467820m94433ms\",\n  \"logo_uri\": \"<string>\",\n  \"metadata\": {\n    \"title\": \"JSONRawMessage represents a json.RawMessage that works well with JSON, SQL, and Swagger.\"\n  },\n  \"owner\": \"<string>\",\n  \"policy_uri\": \"<string>\",\n  \"post_logout_redirect_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"redirect_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"refresh_token_grant_access_token_lifespan\": \"237s81328110h89528ns46000432us84005893609m93057153271h842730us\",\n  \"refresh_token_grant_id_token_lifespan\": \"710572s00571810723s\",\n  \"refresh_token_grant_refresh_token_lifespan\": \"0933m6s8722us5us68693527ms5521720756m22619s7005ns\",\n  \"registration_access_token\": \"<string>\",\n  \"registration_client_uri\": \"<string>\",\n  \"request_object_signing_alg\": \"<string>\",\n  \"request_uris\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"response_types\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"scope\": \"<string>\",\n  \"sector_identifier_uri\": \"<string>\",\n  \"skip_consent\": \"<boolean>\",\n  \"subject_type\": \"<string>\",\n  \"token_endpoint_auth_method\": \"client_secret_basic\",\n  \"token_endpoint_auth_signing_alg\": \"<string>\",\n  \"tos_uri\": \"<string>\",\n  \"updated_at\": \"<dateTime>\",\n  \"userinfo_signed_response_alg\": \"<string>\"\n}"
+						},
+						{
+							"name": "(Structure) - Default Error Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{hydraAdminUrl}}/admin/clients/:id",
+									"host": [
+										"{{hydraAdminUrl}}"
+									],
+									"path": [
+										"admin",
+										"clients",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"<string>\",\n  \"error_debug\": \"<string>\",\n  \"error_description\": \"<string>\",\n  \"error_hint\": \"<string>\",\n  \"status_code\": \"<long>\"\n}"
+						},
+						{
+							"name": "Get an OAuth 2.0 Client by ID",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{hydraAdminUrl}}/admin/clients/{{client_id}}"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "private, no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 25 Sep 2024 08:28:47 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1306"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"client_id\": \"4393cc24-c581-4817-ac22-c236265a044d\",\n    \"client_name\": \"p-team\",\n    \"redirect_uris\": [\n        \"http://127.0.0.1:8080/callback\",\n        \"http://127.0.0.1:8080/logout-callback\",\n        \"http://127.0.0.1:8080/logout-middleware\"\n    ],\n    \"grant_types\": [\n        \"authorization_code\",\n        \"refresh_token\"\n    ],\n    \"response_types\": [\n        \"code\",\n        \"id_token\"\n    ],\n    \"scope\": \"openid offline profile\",\n    \"audience\": [],\n    \"owner\": \"\",\n    \"policy_uri\": \"\",\n    \"allowed_cors_origins\": [],\n    \"tos_uri\": \"\",\n    \"client_uri\": \"\",\n    \"logo_uri\": \"\",\n    \"contacts\": [],\n    \"client_secret_expires_at\": 0,\n    \"subject_type\": \"public\",\n    \"jwks\": {},\n    \"token_endpoint_auth_method\": \"client_secret_basic\",\n    \"userinfo_signed_response_alg\": \"none\",\n    \"created_at\": \"2024-09-25T08:20:42Z\",\n    \"updated_at\": \"2024-09-25T08:27:38.641563Z\",\n    \"post_logout_redirect_uris\": [\n        \"http://127.0.0.1:8080/logout-callback\"\n    ],\n    \"metadata\": {},\n    \"skip_consent\": false,\n    \"skip_logout_consent\": null,\n    \"authorization_code_grant_access_token_lifespan\": null,\n    \"authorization_code_grant_id_token_lifespan\": null,\n    \"authorization_code_grant_refresh_token_lifespan\": null,\n    \"client_credentials_grant_access_token_lifespan\": null,\n    \"implicit_grant_access_token_lifespan\": null,\n    \"implicit_grant_id_token_lifespan\": null,\n    \"jwt_bearer_grant_access_token_lifespan\": null,\n    \"refresh_token_grant_id_token_lifespan\": null,\n    \"refresh_token_grant_access_token_lifespan\": null,\n    \"refresh_token_grant_refresh_token_lifespan\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "List OAuth 2.0 Clients",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{hydraAdminUrl}}/admin/clients?page_size=100&page_token=1&client_name=p-team",
+							"host": [
+								"{{hydraAdminUrl}}"
+							],
+							"path": [
+								"admin",
+								"clients"
+							],
+							"query": [
+								{
+									"key": "page_size",
+									"value": "100",
+									"description": "This is the number of items per page to return. Default value is 250"
+								},
+								{
+									"key": "page_token",
+									"value": "1",
+									"description": "The next page token. Default is 1."
+								},
+								{
+									"key": "client_name",
+									"value": "p-team",
+									"description": "The name of the clients to filter by."
+								},
+								{
+									"key": "owner",
+									"value": "p-team",
+									"description": "The owner of the clients to filter by.",
+									"disabled": true
+								}
+							]
+						},
+						"description": "This endpoint lists all clients in the database, and never returns client secrets. As a default it lists the first 100 clients."
+					},
+					"response": [
+						{
+							"name": "List OAuth 2.0 Clients",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{hydraAdminUrl}}/admin/clients?page_size=100&page_token=1&client_name=p-team",
+									"host": [
+										"{{hydraAdminUrl}}"
+									],
+									"path": [
+										"admin",
+										"clients"
+									],
+									"query": [
+										{
+											"key": "page_size",
+											"value": "100",
+											"description": "This is the number of items per page to return. Default value is 250"
+										},
+										{
+											"key": "page_token",
+											"value": "1",
+											"description": "The next page token. Default is 1."
+										},
+										{
+											"key": "client_name",
+											"value": "p-team",
+											"description": "The name of the clients to filter by."
+										},
+										{
+											"key": "owner",
+											"value": "p-team",
+											"description": "The owner of the clients to filter by.",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "private, no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Link",
+									"value": "</admin/clients?client_name=p-team&page_size=2&page_token=eyJvZmZzZXQiOiIwIiwidiI6Mn0>; rel=\"first\""
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "X-Total-Count",
+									"value": "2"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 25 Sep 2024 10:10:16 GMT"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"client_id\": \"226295e4-4198-42d3-849e-819459eb4179\",\n        \"client_name\": \"p-team\",\n        \"redirect_uris\": [\n            \"http://127.0.0.1:8080/callback\",\n            \"http://127.0.0.1:8080/logout-callback\",\n            \"http://127.0.0.1:8080/logout-middleware\"\n        ],\n        \"grant_types\": [\n            \"authorization_code\",\n            \"refresh_token\"\n        ],\n        \"response_types\": [\n            \"code\",\n            \"id_token\"\n        ],\n        \"scope\": \"openid offline profile\",\n        \"audience\": [],\n        \"owner\": \"\",\n        \"policy_uri\": \"\",\n        \"allowed_cors_origins\": [],\n        \"tos_uri\": \"\",\n        \"client_uri\": \"\",\n        \"logo_uri\": \"\",\n        \"contacts\": [],\n        \"client_secret_expires_at\": 0,\n        \"subject_type\": \"public\",\n        \"jwks\": {},\n        \"token_endpoint_auth_method\": \"client_secret_basic\",\n        \"userinfo_signed_response_alg\": \"none\",\n        \"created_at\": \"2024-09-17T05:04:23Z\",\n        \"updated_at\": \"2024-09-17T05:04:23.0361Z\",\n        \"post_logout_redirect_uris\": [\n            \"http://127.0.0.1:8080/logout-callback\"\n        ],\n        \"metadata\": {},\n        \"skip_consent\": false,\n        \"skip_logout_consent\": null,\n        \"authorization_code_grant_access_token_lifespan\": null,\n        \"authorization_code_grant_id_token_lifespan\": null,\n        \"authorization_code_grant_refresh_token_lifespan\": null,\n        \"client_credentials_grant_access_token_lifespan\": null,\n        \"implicit_grant_access_token_lifespan\": null,\n        \"implicit_grant_id_token_lifespan\": null,\n        \"jwt_bearer_grant_access_token_lifespan\": null,\n        \"refresh_token_grant_id_token_lifespan\": null,\n        \"refresh_token_grant_access_token_lifespan\": null,\n        \"refresh_token_grant_refresh_token_lifespan\": null\n    },\n    {\n        \"client_id\": \"4393cc24-c581-4817-ac22-c236265a044d\",\n        \"client_name\": \"p-team\",\n        \"redirect_uris\": [\n            \"http://127.0.0.1:8080/callback\",\n            \"http://127.0.0.1:8080/logout-callback\",\n            \"http://127.0.0.1:8080/logout-middleware\"\n        ],\n        \"grant_types\": [\n            \"authorization_code\",\n            \"refresh_token\"\n        ],\n        \"response_types\": [\n            \"code\",\n            \"id_token\"\n        ],\n        \"scope\": \"openid offline profile\",\n        \"audience\": [],\n        \"owner\": \"\",\n        \"policy_uri\": \"\",\n        \"allowed_cors_origins\": [],\n        \"tos_uri\": \"\",\n        \"client_uri\": \"\",\n        \"logo_uri\": \"\",\n        \"contacts\": [],\n        \"client_secret_expires_at\": 0,\n        \"subject_type\": \"public\",\n        \"jwks\": {},\n        \"token_endpoint_auth_method\": \"client_secret_basic\",\n        \"userinfo_signed_response_alg\": \"none\",\n        \"created_at\": \"2024-09-25T08:20:42Z\",\n        \"updated_at\": \"2024-09-25T08:27:38.641563Z\",\n        \"post_logout_redirect_uris\": [\n            \"http://127.0.0.1:8080/logout-callback\"\n        ],\n        \"metadata\": {},\n        \"skip_consent\": false,\n        \"skip_logout_consent\": null,\n        \"authorization_code_grant_access_token_lifespan\": null,\n        \"authorization_code_grant_id_token_lifespan\": null,\n        \"authorization_code_grant_refresh_token_lifespan\": null,\n        \"client_credentials_grant_access_token_lifespan\": null,\n        \"implicit_grant_access_token_lifespan\": null,\n        \"implicit_grant_id_token_lifespan\": null,\n        \"jwt_bearer_grant_access_token_lifespan\": null,\n        \"refresh_token_grant_id_token_lifespan\": null,\n        \"refresh_token_grant_access_token_lifespan\": null,\n        \"refresh_token_grant_refresh_token_lifespan\": null\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Delete OAuth 2.0 Client",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{hydraAdminUrl}}/admin/clients/:id",
+							"host": [
+								"{{hydraAdminUrl}}"
+							],
+							"path": [
+								"admin",
+								"clients",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "",
+									"description": "The id of the OAuth 2.0 Client."
+								}
+							]
+						},
+						"description": "Delete an existing OAuth 2.0 Client by its ID.\n\nOAuth 2.0 clients are used to perform OAuth 2.0 and OpenID Connect flows. Usually, OAuth 2.0 clients are generated for applications which want to consume your OAuth 2.0 or OpenID Connect capabilities.\n\nMake sure that this endpoint is well protected and only callable by first-party components."
+					},
+					"response": [
+						{
+							"name": "Delete OAuth 2.0 Client",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": "{{hydraAdminUrl}}/admin/clients/4393cc24-c581-4817-ac22-c236265a044d"
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "private, no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 25 Sep 2024 10:12:40 GMT"
+								}
+							],
+							"cookie": [],
+							"body": null
+						}
+					]
+				}
+			],
+			"description": "API Endpoints that are required to Manage Clients in Hydra\n\nReference - [https://www.ory.sh/docs/hydra/reference/api#tag/oAuth2](https://www.ory.sh/docs/hydra/reference/api#tag/oAuth2)"
+		},
+		{
+			"name": "Ory Hydra Auth API",
+			"item": [
+				{
+					"name": "OAuth 2.0 Authorize Endpoint",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const generateRandomState = () => {",
+									"    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);",
+									"};",
+									"",
+									"pm.environment.set(\"state\", generateRandomState());"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{hydraPublicUrl}}/oauth2/auth?client_id={{client_id}}&redirect_uri=http%3A%2F%2F127.0.0.1%3A5555%2Fcallback&response_type=code&state={{state}}&scope=offline%20openid",
+							"host": [
+								"{{hydraPublicUrl}}"
+							],
+							"path": [
+								"oauth2",
+								"auth"
+							],
+							"query": [
+								{
+									"key": "client_id",
+									"value": "{{client_id}}",
+									"description": "The id of the OAuth 2.0 Client."
+								},
+								{
+									"key": "redirect_uri",
+									"value": "http%3A%2F%2F127.0.0.1%3A5555%2Fcallback"
+								},
+								{
+									"key": "response_type",
+									"value": "code"
+								},
+								{
+									"key": "state",
+									"value": "{{state}}",
+									"description": "A UUID value that is set initially in the Sign-In Endpoint"
+								},
+								{
+									"key": "scope",
+									"value": "offline%20openid"
+								}
+							]
+						},
+						"description": "Use open source libraries to perform OAuth 2.0 and OpenID Connect available for any programming language. You can find a list of libraries at [https://oauth.net/code/](https://oauth.net/code/)\n\nThe Ory SDK is not yet able to this endpoint properly."
+					},
+					"response": [
+						{
+							"name": "(Structure) - Auth",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": "{{hydraPublicUrl}}/oauth2/auth"
+							},
+							"status": "Found",
+							"code": 302,
+							"_postman_previewlanguage": "text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "(Structure) - errorOAuth2",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{hydraPublicUrl}}/oauth2/auth"
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"<string>\",\n  \"error_debug\": \"<string>\",\n  \"error_description\": \"<string>\",\n  \"error_hint\": \"<string>\",\n  \"status_code\": \"<long>\"\n}"
+						},
+						{
+							"name": "OAuth 2.0 Authorize Endpoint",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "http://127.0.0.1:4444/oauth2/auth?client_id=4393cc24-c581-4817-ac22-c236265a044d&redirect_uri=http%3A%2F%2F127.0.0.1%3A5555%2Fcallback&response_type=code&state=&scope=offline%20openid",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "4444",
+									"path": [
+										"oauth2",
+										"auth"
+									],
+									"query": [
+										{
+											"key": "client_id",
+											"value": "4393cc24-c581-4817-ac22-c236265a044d"
+										},
+										{
+											"key": "redirect_uri",
+											"value": "http%3A%2F%2F127.0.0.1%3A5555%2Fcallback"
+										},
+										{
+											"key": "response_type",
+											"value": "code"
+										},
+										{
+											"key": "state",
+											"value": ""
+										},
+										{
+											"key": "scope",
+											"value": "offline%20openid"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "private, no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Cookie"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 25 Sep 2024 08:31:33 GMT"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"342f14de-f09e-4583-9137-cf1802811c0f\",\n    \"organization_id\": null,\n    \"oauth2_login_challenge\": \"cjF3IiMDIC-Re5Y6vCfJmhVJikzBENKxEehKgjEo7WeEiOkzB7RZk3VitZ5HhahOj44upsq0fmJLD_8DklxW2aTou3akhB5sNz1nDjp6_9dvETLRnEkVNBu2kSX09fjcKUC0RgVq8r9OOTT-6xz2-V6v5JC_ip1DjTkKRVqWVhwHqDJVqG0CH1JVJmOcW_FJVoi3LFdJ79QS5czlKiuC3owd3aUpest8aNfPHClmFMSQsFPYdvS_bspBFsUKrFvuf63-Daz9vrJnuAkeyev4gsBXpZFrKLId7D-FpDgh-ZOO2wOQZFQhxkebg6KTAh_Dy_pMMFEhhXwK_35WtP-Dkc1XpmdMsYq_lVv3Ytm1JR63hYI_14_3p6uunQ-vmTboWtVQlTIBn-FAFiT9QxzQJ9nGX6NIbDGVQYbHl1MmPF0Pq4fMvxVz1HdZgvqfIE0_HTfiU69o3JCc6sgFVua-cok847tNNG9ZfotTg98DCyq0Fpr-f3LD4VhrxP2ixgxYMgF_k3IiwvGB_R4P3bhdMcRx2wWRSUBjKoZJR3Lw6Lm7IolvNzvNJDhsohikqiBzOGG8ABB5QXy6ybJJy6h0HY2UJSj6ZnB14_9A5ywqMDIMpq9aIIX-5tFMS_JqA3Ya-6Qpkp6AlRHFVql3zQ_VAtzHLk9IlhajCtHfd1q3IKIYFubIdwGe-vZJp9xa0Un7KTPEXI7Z80_IfHeNhDQGcEMHFTGaDtvnSkcjob9aEnS3q_XXp7VS89hRXBD13s5gO1jxMs57MmMEcFL2I_W-Zl_RBdmLuxvotMzGznEhfAo7QZCTDV7VRfEPjp0_Zzq2j0JYDBWXRI_ufC5Z0ktmS8vezkjCNik9mQU0C4wMqIjQQ9kWOXRfIt5GIA7f7_sROb7pHN8h0oXiV1W6Gw_MesZzTsW-HNFH6wx40qQnOcgIHZXKQKcjMWmEXjQJnez5AHJrWFPeLSgysuptvIEV9QjfxhGqraM0Sa0mK-dBPneIlCNv8-20-ZQVBLN14eVRtqDtvu3QjmkHg8kfKJsZH9PQOQww-aWL9y0MEwZZZAXDJqKs_BtqBc5UuvBs2eDvxQlQvdDiYfJfzoBLvK0MFzNOJCeH5xGdYSflZkGOMWY0CPWEoE51QIq5bCHjqIPlQEevQk-O6wwZ8hGdFrMvssAQUZe5De2VKvs0OQh4SoNCqZcxpaPLWmg0s4mEfFwQljBvkrBwdvdT_gWDE28dhH5zhSuPsIllQSHctU5xGqXJ7yfH3v_HXt4vnUzQ3nKrR37EYwB6siAWXh4R91lGk6HYoHoygcVRoXMwlbZ3zRLT7WgU3KOfbDck3rS_fv0za1kIuEyfuGH2QdWrE_9GJQU8BfHxYVRpz7_DqH-STfM1Wn6Vyrwe2D1DHDvhebnS_IR1eIYOq4QpH2ZRbckzYUaykOrrqSI3YOaZmTAcnPYgrok84VeXwaLrmKc0UjDR\",\n    \"oauth2_login_request\": {\n        \"challenge\": \"cjF3IiMDIC-Re5Y6vCfJmhVJikzBENKxEehKgjEo7WeEiOkzB7RZk3VitZ5HhahOj44upsq0fmJLD_8DklxW2aTou3akhB5sNz1nDjp6_9dvETLRnEkVNBu2kSX09fjcKUC0RgVq8r9OOTT-6xz2-V6v5JC_ip1DjTkKRVqWVhwHqDJVqG0CH1JVJmOcW_FJVoi3LFdJ79QS5czlKiuC3owd3aUpest8aNfPHClmFMSQsFPYdvS_bspBFsUKrFvuf63-Daz9vrJnuAkeyev4gsBXpZFrKLId7D-FpDgh-ZOO2wOQZFQhxkebg6KTAh_Dy_pMMFEhhXwK_35WtP-Dkc1XpmdMsYq_lVv3Ytm1JR63hYI_14_3p6uunQ-vmTboWtVQlTIBn-FAFiT9QxzQJ9nGX6NIbDGVQYbHl1MmPF0Pq4fMvxVz1HdZgvqfIE0_HTfiU69o3JCc6sgFVua-cok847tNNG9ZfotTg98DCyq0Fpr-f3LD4VhrxP2ixgxYMgF_k3IiwvGB_R4P3bhdMcRx2wWRSUBjKoZJR3Lw6Lm7IolvNzvNJDhsohikqiBzOGG8ABB5QXy6ybJJy6h0HY2UJSj6ZnB14_9A5ywqMDIMpq9aIIX-5tFMS_JqA3Ya-6Qpkp6AlRHFVql3zQ_VAtzHLk9IlhajCtHfd1q3IKIYFubIdwGe-vZJp9xa0Un7KTPEXI7Z80_IfHeNhDQGcEMHFTGaDtvnSkcjob9aEnS3q_XXp7VS89hRXBD13s5gO1jxMs57MmMEcFL2I_W-Zl_RBdmLuxvotMzGznEhfAo7QZCTDV7VRfEPjp0_Zzq2j0JYDBWXRI_ufC5Z0ktmS8vezkjCNik9mQU0C4wMqIjQQ9kWOXRfIt5GIA7f7_sROb7pHN8h0oXiV1W6Gw_MesZzTsW-HNFH6wx40qQnOcgIHZXKQKcjMWmEXjQJnez5AHJrWFPeLSgysuptvIEV9QjfxhGqraM0Sa0mK-dBPneIlCNv8-20-ZQVBLN14eVRtqDtvu3QjmkHg8kfKJsZH9PQOQww-aWL9y0MEwZZZAXDJqKs_BtqBc5UuvBs2eDvxQlQvdDiYfJfzoBLvK0MFzNOJCeH5xGdYSflZkGOMWY0CPWEoE51QIq5bCHjqIPlQEevQk-O6wwZ8hGdFrMvssAQUZe5De2VKvs0OQh4SoNCqZcxpaPLWmg0s4mEfFwQljBvkrBwdvdT_gWDE28dhH5zhSuPsIllQSHctU5xGqXJ7yfH3v_HXt4vnUzQ3nKrR37EYwB6siAWXh4R91lGk6HYoHoygcVRoXMwlbZ3zRLT7WgU3KOfbDck3rS_fv0za1kIuEyfuGH2QdWrE_9GJQU8BfHxYVRpz7_DqH-STfM1Wn6Vyrwe2D1DHDvhebnS_IR1eIYOq4QpH2ZRbckzYUaykOrrqSI3YOaZmTAcnPYgrok84VeXwaLrmKc0UjDR\",\n        \"client\": {\n            \"allowed_cors_origins\": [],\n            \"audience\": [],\n            \"client_id\": \"4393cc24-c581-4817-ac22-c236265a044d\",\n            \"client_name\": \"p-team\",\n            \"client_secret_expires_at\": 0,\n            \"client_uri\": \"\",\n            \"contacts\": [],\n            \"created_at\": \"2024-09-25T08:20:42Z\",\n            \"grant_types\": [\n                \"authorization_code\",\n                \"refresh_token\"\n            ],\n            \"jwks\": {},\n            \"logo_uri\": \"\",\n            \"metadata\": {},\n            \"owner\": \"\",\n            \"policy_uri\": \"\",\n            \"post_logout_redirect_uris\": [\n                \"http://127.0.0.1:8080/logout-callback\"\n            ],\n            \"redirect_uris\": [\n                \"http://127.0.0.1:8080/callback\",\n                \"http://127.0.0.1:8080/logout-callback\",\n                \"http://127.0.0.1:8080/logout-middleware\"\n            ],\n            \"response_types\": [\n                \"code\",\n                \"id_token\"\n            ],\n            \"scope\": \"openid offline profile\",\n            \"skip_consent\": false,\n            \"subject_type\": \"public\",\n            \"token_endpoint_auth_method\": \"client_secret_basic\",\n            \"tos_uri\": \"\",\n            \"updated_at\": \"2024-09-25T08:27:38.641563Z\",\n            \"userinfo_signed_response_alg\": \"none\"\n        },\n        \"oidc_context\": {},\n        \"request_url\": \"http://127.0.0.1:4444/oauth2/auth?client_id=4393cc24-c581-4817-ac22-c236265a044d&redirect_uri=http%3A%2F%2F127.0.0.1%3A5555%2Fcallback&response_type=code&state=ywbwtt7xz1lzr6pyhh7rfd&scope=offline%20openid\",\n        \"requested_access_token_audience\": [],\n        \"requested_scope\": [\n            \"offline\",\n            \"openid\"\n        ],\n        \"session_id\": \"186edab9-32fb-4cf8-8ed8-00f5d63a1be7\",\n        \"skip\": false,\n        \"subject\": \"\"\n    },\n    \"type\": \"browser\",\n    \"expires_at\": \"2024-09-25T09:31:32.927674638Z\",\n    \"issued_at\": \"2024-09-25T08:31:32.927674638Z\",\n    \"request_url\": \"http://127.0.0.1:4433/self-service/login/browser?aal=&login_challenge=cjF3IiMDIC-Re5Y6vCfJmhVJikzBENKxEehKgjEo7WeEiOkzB7RZk3VitZ5HhahOj44upsq0fmJLD_8DklxW2aTou3akhB5sNz1nDjp6_9dvETLRnEkVNBu2kSX09fjcKUC0RgVq8r9OOTT-6xz2-V6v5JC_ip1DjTkKRVqWVhwHqDJVqG0CH1JVJmOcW_FJVoi3LFdJ79QS5czlKiuC3owd3aUpest8aNfPHClmFMSQsFPYdvS_bspBFsUKrFvuf63-Daz9vrJnuAkeyev4gsBXpZFrKLId7D-FpDgh-ZOO2wOQZFQhxkebg6KTAh_Dy_pMMFEhhXwK_35WtP-Dkc1XpmdMsYq_lVv3Ytm1JR63hYI_14_3p6uunQ-vmTboWtVQlTIBn-FAFiT9QxzQJ9nGX6NIbDGVQYbHl1MmPF0Pq4fMvxVz1HdZgvqfIE0_HTfiU69o3JCc6sgFVua-cok847tNNG9ZfotTg98DCyq0Fpr-f3LD4VhrxP2ixgxYMgF_k3IiwvGB_R4P3bhdMcRx2wWRSUBjKoZJR3Lw6Lm7IolvNzvNJDhsohikqiBzOGG8ABB5QXy6ybJJy6h0HY2UJSj6ZnB14_9A5ywqMDIMpq9aIIX-5tFMS_JqA3Ya-6Qpkp6AlRHFVql3zQ_VAtzHLk9IlhajCtHfd1q3IKIYFubIdwGe-vZJp9xa0Un7KTPEXI7Z80_IfHeNhDQGcEMHFTGaDtvnSkcjob9aEnS3q_XXp7VS89hRXBD13s5gO1jxMs57MmMEcFL2I_W-Zl_RBdmLuxvotMzGznEhfAo7QZCTDV7VRfEPjp0_Zzq2j0JYDBWXRI_ufC5Z0ktmS8vezkjCNik9mQU0C4wMqIjQQ9kWOXRfIt5GIA7f7_sROb7pHN8h0oXiV1W6Gw_MesZzTsW-HNFH6wx40qQnOcgIHZXKQKcjMWmEXjQJnez5AHJrWFPeLSgysuptvIEV9QjfxhGqraM0Sa0mK-dBPneIlCNv8-20-ZQVBLN14eVRtqDtvu3QjmkHg8kfKJsZH9PQOQww-aWL9y0MEwZZZAXDJqKs_BtqBc5UuvBs2eDvxQlQvdDiYfJfzoBLvK0MFzNOJCeH5xGdYSflZkGOMWY0CPWEoE51QIq5bCHjqIPlQEevQk-O6wwZ8hGdFrMvssAQUZe5De2VKvs0OQh4SoNCqZcxpaPLWmg0s4mEfFwQljBvkrBwdvdT_gWDE28dhH5zhSuPsIllQSHctU5xGqXJ7yfH3v_HXt4vnUzQ3nKrR37EYwB6siAWXh4R91lGk6HYoHoygcVRoXMwlbZ3zRLT7WgU3KOfbDck3rS_fv0za1kIuEyfuGH2QdWrE_9GJQU8BfHxYVRpz7_DqH-STfM1Wn6Vyrwe2D1DHDvhebnS_IR1eIYOq4QpH2ZRbckzYUaykOrrqSI3YOaZmTAcnPYgrok84VeXwaLrmKc0UjDR&organization=&refresh=true&return_to=&via=\",\n    \"ui\": {\n        \"action\": \"http://127.0.0.1:4433/self-service/login?flow=342f14de-f09e-4583-9137-cf1802811c0f\",\n        \"method\": \"POST\",\n        \"nodes\": [\n            {\n                \"type\": \"input\",\n                \"group\": \"oidc\",\n                \"attributes\": {\n                    \"name\": \"provider\",\n                    \"type\": \"submit\",\n                    \"value\": \"google-kratos-poc\",\n                    \"disabled\": false,\n                    \"node_type\": \"input\"\n                },\n                \"messages\": [],\n                \"meta\": {\n                    \"label\": {\n                        \"id\": 1010002,\n                        \"text\": \"Sign in with Google\",\n                        \"type\": \"info\",\n                        \"context\": {\n                            \"provider\": \"Google\"\n                        }\n                    }\n                }\n            },\n            {\n                \"type\": \"input\",\n                \"group\": \"default\",\n                \"attributes\": {\n                    \"name\": \"csrf_token\",\n                    \"type\": \"hidden\",\n                    \"value\": \"oo2q8VRPYkcxbV86WqPFxUT5lOvr5rYo1IpYNnMSzI+VrTSpihxyUf9pem9uoG/D5mTFUr1VfxDIp1FSOq8M4Q==\",\n                    \"required\": true,\n                    \"disabled\": false,\n                    \"node_type\": \"input\"\n                },\n                \"messages\": [],\n                \"meta\": {}\n            },\n            {\n                \"type\": \"input\",\n                \"group\": \"default\",\n                \"attributes\": {\n                    \"name\": \"identifier\",\n                    \"type\": \"text\",\n                    \"value\": \"\",\n                    \"required\": true,\n                    \"disabled\": false,\n                    \"node_type\": \"input\"\n                },\n                \"messages\": [],\n                \"meta\": {\n                    \"label\": {\n                        \"id\": 1070002,\n                        \"text\": \"Primary Email\",\n                        \"type\": \"info\",\n                        \"context\": {\n                            \"title\": \"Primary Email\"\n                        }\n                    }\n                }\n            },\n            {\n                \"type\": \"input\",\n                \"group\": \"code\",\n                \"attributes\": {\n                    \"name\": \"method\",\n                    \"type\": \"submit\",\n                    \"value\": \"code\",\n                    \"disabled\": false,\n                    \"node_type\": \"input\"\n                },\n                \"messages\": [],\n                \"meta\": {\n                    \"label\": {\n                        \"id\": 1010015,\n                        \"text\": \"Sign in with code\",\n                        \"type\": \"info\"\n                    }\n                }\n            },\n            {\n                \"type\": \"input\",\n                \"group\": \"password\",\n                \"attributes\": {\n                    \"name\": \"password\",\n                    \"type\": \"password\",\n                    \"required\": true,\n                    \"autocomplete\": \"current-password\",\n                    \"disabled\": false,\n                    \"node_type\": \"input\"\n                },\n                \"messages\": [],\n                \"meta\": {\n                    \"label\": {\n                        \"id\": 1070001,\n                        \"text\": \"Password\",\n                        \"type\": \"info\"\n                    }\n                }\n            },\n            {\n                \"type\": \"input\",\n                \"group\": \"password\",\n                \"attributes\": {\n                    \"name\": \"method\",\n                    \"type\": \"submit\",\n                    \"value\": \"password\",\n                    \"disabled\": false,\n                    \"node_type\": \"input\"\n                },\n                \"messages\": [],\n                \"meta\": {\n                    \"label\": {\n                        \"id\": 1010001,\n                        \"text\": \"Sign in\",\n                        \"type\": \"info\"\n                    }\n                }\n            }\n        ]\n    },\n    \"created_at\": \"2024-09-25T08:31:32.930764Z\",\n    \"updated_at\": \"2024-09-25T08:31:32.930764Z\",\n    \"refresh\": false,\n    \"requested_aal\": \"aal1\",\n    \"state\": \"choose_method\"\n}"
+						}
+					]
+				},
+				{
+					"name": "OAuth 2.0 Token Endpoint",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "authorization_code",
+									"description": "(Required) "
+								},
+								{
+									"key": "client_id",
+									"value": "{{client_id}}"
+								},
+								{
+									"key": "code",
+									"value": "ory_ac_QCTTFEYYt6K9x49dFYY5Fsx2ml4OSWdKIRpXZQFx6FY.X2vgLGW6Zi9IEGx_t5m5X8cqCBdvysPPHhMZEmjOYO4"
+								},
+								{
+									"key": "redirect_uri",
+									"value": "http://127.0.0.1:5555/callback"
+								}
+							]
+						},
+						"url": "{{hydraPublicUrl}}/oauth2/token",
+						"description": "Use open source libraries to perform OAuth 2.0 and OpenID Connect available for any programming language. You can find a list of libraries here [https://oauth.net/code/](https://oauth.net/code/)\n\nThe Ory SDK is not yet able to this endpoint properly."
+					},
+					"response": [
+						{
+							"name": "(Structure) - OAuth 2.0 Token Exchange",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/x-www-form-urlencoded"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Basic <credentials>",
+										"description": "Added as a part of security scheme: basic"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "<string>",
+											"description": "(Required) "
+										},
+										{
+											"key": "client_id",
+											"value": "<string>"
+										},
+										{
+											"key": "code",
+											"value": "<string>"
+										},
+										{
+											"key": "redirect_uri",
+											"value": "<string>"
+										},
+										{
+											"key": "refresh_token",
+											"value": "<string>"
+										}
+									]
+								},
+								"url": "{{baseUrl}}/oauth2/token"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"access_token\": \"<string>\",\n  \"expires_in\": \"<long>\",\n  \"id_token\": \"<long>\",\n  \"refresh_token\": \"<string>\",\n  \"scope\": \"<string>\",\n  \"token_type\": \"<string>\"\n}"
+						},
+						{
+							"name": "(Structure) - errorOAuth2",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/x-www-form-urlencoded"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Basic <credentials>",
+										"description": "Added as a part of security scheme: basic"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "<string>",
+											"description": "(Required) "
+										},
+										{
+											"key": "client_id",
+											"value": "<string>"
+										},
+										{
+											"key": "code",
+											"value": "<string>"
+										},
+										{
+											"key": "redirect_uri",
+											"value": "<string>"
+										},
+										{
+											"key": "refresh_token",
+											"value": "<string>"
+										}
+									]
+								},
+								"url": "{{baseUrl}}/oauth2/token"
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"<string>\",\n  \"error_debug\": \"<string>\",\n  \"error_description\": \"<string>\",\n  \"error_hint\": \"<string>\",\n  \"status_code\": \"<long>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Introspect OAuth2 Access and Refresh Tokens",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "token",
+									"value": "ory_at_7HSFNLx_IgWaLGgb4n4zyrbgbAQs7uSNp9pv-cOF4UY.VA7Nc-eHY66-jj5sFUl72S2SRpeleSAJUONVKvM0SZw",
+									"description": "(Required) The string value of the token. For access tokens, this\nis the \"access_token\" value returned from the token endpoint\ndefined in OAuth 2.0. For refresh tokens, this is the \"refresh_token\"\nvalue returned."
+								},
+								{
+									"key": "scope",
+									"value": "offline openid",
+									"description": "An optional, space separated list of required scopes. If the access token was not granted one of the\nscopes, the result of active will be false."
+								}
+							]
+						},
+						"url": "{{hydraAdminUrl}}/admin/oauth2/introspect",
+						"description": "The introspection endpoint allows to check if a token (both refresh and access) is active or not.\n\nAn active token is neither expired nor revoked.\n\nIf a token is active, additional information on the token will be included.\n\nYou can set additional data for a token by setting `session.access_token` during the consent flow."
+					},
+					"response": [
+						{
+							"name": "introspectedOAuth2Token",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/x-www-form-urlencoded"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "token",
+											"value": "<string>",
+											"description": "(Required) The string value of the token. For access tokens, this\nis the \"access_token\" value returned from the token endpoint\ndefined in OAuth 2.0. For refresh tokens, this is the \"refresh_token\"\nvalue returned."
+										},
+										{
+											"key": "scope",
+											"value": "<string>",
+											"description": "An optional, space separated list of required scopes. If the access token was not granted one of the\nscopes, the result of active will be false."
+										}
+									]
+								},
+								"url": "{{hydraAdminUrl}}/admin/oauth2/introspect"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"active\": \"<boolean>\",\n  \"aud\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"client_id\": \"<string>\",\n  \"exp\": \"<long>\",\n  \"ext\": {\n    \"quisa\": {},\n    \"id2_\": {}\n  },\n  \"iat\": \"<long>\",\n  \"iss\": \"<string>\",\n  \"nbf\": \"<long>\",\n  \"obfuscated_subject\": \"<string>\",\n  \"scope\": \"<string>\",\n  \"sub\": \"<string>\",\n  \"token_type\": \"<string>\",\n  \"token_use\": \"<string>\",\n  \"username\": \"<string>\"\n}"
+						},
+						{
+							"name": "errorOAuth2",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/x-www-form-urlencoded"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "token",
+											"value": "<string>",
+											"description": "(Required) The string value of the token. For access tokens, this\nis the \"access_token\" value returned from the token endpoint\ndefined in OAuth 2.0. For refresh tokens, this is the \"refresh_token\"\nvalue returned."
+										},
+										{
+											"key": "scope",
+											"value": "<string>",
+											"description": "An optional, space separated list of required scopes. If the access token was not granted one of the\nscopes, the result of active will be false."
+										}
+									]
+								},
+								"url": "{{hydraAdminUrl}}/admin/oauth2/introspect"
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"<string>\",\n  \"error_debug\": \"<string>\",\n  \"error_description\": \"<string>\",\n  \"error_hint\": \"<string>\",\n  \"status_code\": \"<long>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "OpenID Connect Discovery",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": "{{hydraPublicUrl}}/.well-known/openid-configuration",
+						"description": "A mechanism for an OpenID Connect Relying Party to discover the End-User's OpenID Provider and obtain information needed to interact with it, including its OAuth 2.0 endpoint locations.\n\nPopular libraries for OpenID Connect clients include oidc-client-js (JavaScript), go-oidc (Golang), and others.  \nFor a full list of clients go here: [https://openid.net/developers/certified/](https://openid.net/developers/certified/)"
+					},
+					"response": [
+						{
+							"name": "(Structure) - Oidc Configuration",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{hydraPublicUrl}}/.well-known/openid-configuration"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"issuer\": \"<string>\",\n  \"authorization_endpoint\": \"<string>\",\n  \"token_endpoint\": \"<string>\",\n  \"jwks_uri\": \"<string>\",\n  \"subject_types_supported\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"response_types_supported\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"id_token_signing_alg_values_supported\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"id_token_signed_response_alg\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"userinfo_signed_response_alg\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"backchannel_logout_session_supported\": \"<boolean>\",\n  \"backchannel_logout_supported\": \"<boolean>\",\n  \"claims_parameter_supported\": \"<boolean>\",\n  \"claims_supported\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"code_challenge_methods_supported\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"credentials_endpoint_draft_00\": \"<string>\",\n  \"credentials_supported_draft_00\": [\n    {\n      \"cryptographic_binding_methods_supported\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"cryptographic_suites_supported\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"format\": \"<string>\",\n      \"types\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    },\n    {\n      \"cryptographic_binding_methods_supported\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"cryptographic_suites_supported\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"format\": \"<string>\",\n      \"types\": [\n        \"<string>\",\n        \"<string>\"\n      ]\n    }\n  ],\n  \"end_session_endpoint\": \"<string>\",\n  \"frontchannel_logout_session_supported\": \"<boolean>\",\n  \"frontchannel_logout_supported\": \"<boolean>\",\n  \"grant_types_supported\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"registration_endpoint\": \"<string>\",\n  \"request_object_signing_alg_values_supported\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"request_parameter_supported\": \"<boolean>\",\n  \"request_uri_parameter_supported\": \"<boolean>\",\n  \"require_request_uri_registration\": \"<boolean>\",\n  \"response_modes_supported\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"revocation_endpoint\": \"<string>\",\n  \"scopes_supported\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"token_endpoint_auth_methods_supported\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"userinfo_endpoint\": \"<string>\",\n  \"userinfo_signing_alg_values_supported\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}"
+						},
+						{
+							"name": "(Structure) - errorOAuth2",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{hydraPublicUrl}}/.well-known/openid-configuration"
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"<string>\",\n  \"error_debug\": \"<string>\",\n  \"error_description\": \"<string>\",\n  \"error_hint\": \"<string>\",\n  \"status_code\": \"<long>\"\n}"
+						},
+						{
+							"name": "OpenID Connect Discovery",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": "{{hydraPublicUrl}}/.well-known/openid-configuration"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "private, no-cache, no-store, must-revalidate"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 25 Sep 2024 08:30:28 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1855"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"issuer\": \"http://127.0.0.1:4444\",\n    \"authorization_endpoint\": \"http://127.0.0.1:4444/oauth2/auth\",\n    \"token_endpoint\": \"http://127.0.0.1:4444/oauth2/token\",\n    \"jwks_uri\": \"http://127.0.0.1:4444/.well-known/jwks.json\",\n    \"subject_types_supported\": [\n        \"pairwise\",\n        \"public\"\n    ],\n    \"response_types_supported\": [\n        \"code\",\n        \"code id_token\",\n        \"id_token\",\n        \"token id_token\",\n        \"token\",\n        \"token id_token code\"\n    ],\n    \"claims_supported\": [\n        \"sub\"\n    ],\n    \"grant_types_supported\": [\n        \"authorization_code\",\n        \"implicit\",\n        \"client_credentials\",\n        \"refresh_token\"\n    ],\n    \"response_modes_supported\": [\n        \"query\",\n        \"fragment\"\n    ],\n    \"userinfo_endpoint\": \"http://127.0.0.1:4444/userinfo\",\n    \"scopes_supported\": [\n        \"offline_access\",\n        \"offline\",\n        \"openid\"\n    ],\n    \"token_endpoint_auth_methods_supported\": [\n        \"client_secret_post\",\n        \"client_secret_basic\",\n        \"private_key_jwt\",\n        \"none\"\n    ],\n    \"userinfo_signing_alg_values_supported\": [\n        \"none\",\n        \"RS256\"\n    ],\n    \"id_token_signing_alg_values_supported\": [\n        \"RS256\"\n    ],\n    \"id_token_signed_response_alg\": [\n        \"RS256\"\n    ],\n    \"userinfo_signed_response_alg\": [\n        \"RS256\"\n    ],\n    \"request_parameter_supported\": true,\n    \"request_uri_parameter_supported\": true,\n    \"require_request_uri_registration\": true,\n    \"claims_parameter_supported\": false,\n    \"revocation_endpoint\": \"http://127.0.0.1:4444/oauth2/revoke\",\n    \"backchannel_logout_supported\": true,\n    \"backchannel_logout_session_supported\": true,\n    \"frontchannel_logout_supported\": true,\n    \"frontchannel_logout_session_supported\": true,\n    \"end_session_endpoint\": \"http://127.0.0.1:4444/oauth2/sessions/logout\",\n    \"request_object_signing_alg_values_supported\": [\n        \"none\",\n        \"RS256\",\n        \"ES256\"\n    ],\n    \"code_challenge_methods_supported\": [\n        \"plain\",\n        \"S256\"\n    ],\n    \"credentials_endpoint_draft_00\": \"http://127.0.0.1:4444/credentials\",\n    \"credentials_supported_draft_00\": [\n        {\n            \"format\": \"jwt_vc_json\",\n            \"types\": [\n                \"VerifiableCredential\",\n                \"UserInfoCredential\"\n            ],\n            \"cryptographic_binding_methods_supported\": [\n                \"jwk\"\n            ],\n            \"cryptographic_suites_supported\": [\n                \"PS256\",\n                \"RS256\",\n                \"ES256\",\n                \"PS384\",\n                \"RS384\",\n                \"ES384\",\n                \"PS512\",\n                \"RS512\",\n                \"ES512\",\n                \"EdDSA\"\n            ]\n        }\n    ]\n}"
+						}
+					]
+				}
+			],
+			"description": "API Endpoints that are required to Manage User Authorization Workflow\n\nReference - [https://www.ory.sh/docs/hydra/reference/api#tag/oAuth2](https://www.ory.sh/docs/hydra/reference/api#tag/oAuth2)"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "state",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "customBaseUrl",
+			"value": "http://127.0.0.1:8080",
+			"type": "string"
+		},
+		{
+			"key": "hydraAdminUrl",
+			"value": "http://127.0.0.1:4445",
+			"type": "string"
+		},
+		{
+			"key": "hydraPublicUrl",
+			"value": "http://127.0.0.1:4444",
+			"type": "string"
+		},
+		{
+			"key": "kratosAdminUrl",
+			"value": "http://127.0.0.1:4434",
+			"type": "string"
+		},
+		{
+			"key": "kratosPublicUrl",
+			"value": "http://127.0.0.1:4433",
+			"type": "string"
+		},
+		{
+			"key": "client_id",
+			"value": "4393cc24-c581-4817-ac22-c236265a044d",
+			"type": "string"
+		}
+	]
+}

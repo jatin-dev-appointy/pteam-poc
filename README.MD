@@ -181,7 +181,7 @@ curl --location 'http://127.0.0.1:4445/admin/clients' \
 
 To customize the login flow and conditionally skip specific identity providers, add a `skip_providers` query parameter to the login URL. The value of this parameter should be base64-encoded.
 
-### How it Works:
+### How it Works
 
 1. **Passing Query Parameter:**  
    When generating the login flow, the query parameter `skip_providers` (e.g., `skip_providers=U0tJUEdH`) is passed along with other standard parameters.
@@ -198,9 +198,18 @@ To customize the login flow and conditionally skip specific identity providers, 
 ### Example
 
 For instance, the following URL skips a google login during the login flow:
-```
+
+```bash
 http://127.0.0.1:4455/login?skip_providers=U0tJUEdH
 ```
+
+## API Specification
+
+```bash
+https://documenter.getpostman.com/view/20290085/2sAXqwYKVU#5a5cda9e-67ac-47af-8d03-4f55395c6e2f
+```
+
+API Postman Collection can be found at `./poc-pteam.postman_collection.json`
 
 ## References
 
