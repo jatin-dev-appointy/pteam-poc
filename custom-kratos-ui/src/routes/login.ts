@@ -9,6 +9,7 @@ import {
   RouteCreator,
   RouteRegistrator,
 } from "../pkg"
+import { FLOW_MAP, FlowMapKeys } from "../utils/flowMapping"
 import { LoginFlow } from "@ory/client"
 import { UserAuthCard } from "@ory/elements-markup"
 import path from "path"
@@ -26,6 +27,7 @@ export const createLoginRoute: RouteCreator =
       organization = "",
       via = "",
       login_challenge,
+      skip_providers,
     } = req.query
     const { frontend, kratosBrowserUrl, logoUrl, extraPartials } =
       createHelpers(req, res)
@@ -36,6 +38,7 @@ export const createLoginRoute: RouteCreator =
       return_to: return_to.toString(),
       organization: organization.toString(),
       via: via.toString(),
+      skip_providers: skip_providers?.toString() ?? "",
     })
 
     if (isQuerySet(login_challenge)) {
@@ -169,11 +172,35 @@ export const createLoginRoute: RouteCreator =
           logoutUrl = await getLogoutUrl(flow)
         }
 
+        const parsedUrl = new URL(flow.request_url)
+        let skipProviders = parsedUrl.searchParams.get("skip_providers") ?? "QUxM" // QUxM == ALL
+
+        try {
+          skipProviders = atob(skipProviders)
+        } catch (error) {
+          skipProviders = "ALL"
+        }
+
+        const filterFlowIds = skipProviders ? FLOW_MAP[skipProviders as FlowMapKeys] : []
+
+        const filteredNodes = flow.ui.nodes.filter(
+          (node) =>
+            node.group === "default" ||
+            !filterFlowIds.includes(node.meta.label?.id ?? 0),
+        )
+        const newFlow = {
+          ...flow,
+          ui: {
+            ...flow.ui,
+            nodes: filteredNodes,
+          },
+        }
+
         res.render("login", {
-          nodes: flow.ui.nodes,
+          nodes: filteredNodes,
           card: UserAuthCard(
             {
-              flow,
+              flow: newFlow,
               flowType: "login",
               cardImage: logoUrl,
               additionalProps: {
