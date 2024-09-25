@@ -177,6 +177,31 @@ curl --location 'http://127.0.0.1:4445/admin/clients' \
 }'
 ```
 
+## Dynamic Login Flow Based on Query Parameters
+
+To customize the login flow and conditionally skip specific identity providers, add a `skip_providers` query parameter to the login URL. The value of this parameter should be base64-encoded.
+
+### How it Works:
+
+1. **Passing Query Parameter:**  
+   When generating the login flow, the query parameter `skip_providers` (e.g., `skip_providers=U0tJUEdH`) is passed along with other standard parameters.
+
+2. **Flow Generation:**  
+   Ory Kratos generates the login flow and includes the `skip_providers` parameter in the flow `request_url` stored in the database.
+
+3. **Checking Flow:**  
+   During the rendering of the login page, the system checks if the flow associated with the `flow_id` contains the `skip_providers` parameter.
+
+4. **Skipping Providers:**  
+   If the parameter exists, the login page skips the specified identity providers based on a pre-defined mapping of provider names.
+
+### Example
+
+For instance, the following URL skips a google login during the login flow:
+```
+http://127.0.0.1:4455/login?skip_providers=U0tJUEdH
+```
+
 ## References
 
 - <https://www.ory.sh/docs/kratos/install>
